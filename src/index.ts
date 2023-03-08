@@ -188,7 +188,9 @@ const summarizeResources = async (resources: ResourceI[]) => {
       }
     }
   } catch (err) {
-    console.error("Something went wrong with summarizing", err);
+    // Handle errors with summarizing, allowing it to fail silently 
+    // so users can still get the digests without summarization
+    console.error("Something went wrong with summarizing", err); 
   }
 }
 
