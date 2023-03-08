@@ -1,0 +1,37 @@
+{
+  "name": "synthesis-subscriptions-functions",
+  "version": "1.0.0",
+  "description": "Sysnthesis serverless subscriptions function",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.111",
+    "@types/jsdom": "^21.1.0",
+    "@types/lodash": "^4.14.191",
+    "@types/node": "^18.14.1",
+    "@types/uuid": "^9.0.1",
+    "@types/xml2js": "^0.4.11",
+    "esbuild": "^0.17.10",
+    "ts-node": "^10.9.1",
+    "tslib": "^2.5.0",
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "@sendgrid/mail": "^7.7.0",
+    "canvas": "^2.11.0",
+    "chrome-aws-lambda": "10.1.0",
+    "dotenv": "^16.0.3",
+    "jsdom": "^21.1.0",
+    "lodash": "^4.17.21",
+    "node-fetch": "^3.3.0",
+    "openai": "^3.1.0",
+    "puppeteer-core": "10.1.0",
+    "rss-parser": "^3.12.0"
+  }
+}

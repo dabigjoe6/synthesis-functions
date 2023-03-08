@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "noImplicitAny": true,
+    "target": "ESNext",
+    "strictNullChecks": true,
+    "esModuleInterop": true,
+    "module": "es2022",
+    "moduleResolution": "node"
+  },
+  "include": ["./src/**/*"],
+  "ts-node": {
+    "files": true
+  },
+  "files": ["src/decs.d.ts"]
+}
