@@ -1,6 +1,6 @@
 import jsdom from "jsdom";
 import RssParser from "rss-parser";
-import { ResourceI } from '../index.js';
+import { ResourceI } from "../utils/constants.js";
 
 const { JSDOM } = jsdom;
 

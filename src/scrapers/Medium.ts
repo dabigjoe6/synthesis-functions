@@ -1,9 +1,9 @@
 import chromium from 'chrome-aws-lambda';
-import { inifinteScrollToBottom } from "../utils/scrapeHelpers.js";
-import { viewport } from '../utils/constants.js';
-import { cleanHTMLContent } from "../utils/preprocessing.js";
-import { ResourceI } from '../index.js';
 import { Browser, ElementHandle, Page } from 'puppeteer-core';
+
+import { inifinteScrollToBottom } from "../utils/scrapeHelpers.js";
+import { viewport, ResourceI } from '../utils/constants.js';
+import { cleanHTMLContent } from "../utils/preprocessing.js";
 
 
 export default class Medium {

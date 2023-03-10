@@ -1,4 +1,10 @@
+import dotenv from "dotenv";
+import { fileURLToPath } from "url";
+import path from "path";
 import { Configuration, OpenAIApi } from "openai";
+
+const __filename = fileURLToPath(import.meta.url);
+dotenv.config({ path: path.resolve(__filename, "../../../.env") });
 
 const RATE_LIMIT_PER_MINUTE = 20;
 const DEFAULT_DELAY_IN_SECOND = 60 / RATE_LIMIT_PER_MINUTE;

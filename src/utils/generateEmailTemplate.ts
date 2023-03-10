@@ -1,4 +1,4 @@
-import { ResourceI } from "..";
+import { ResourceI } from "./constants.js";
 const generatePost = (post: ResourceI) => `
 <table style="font-family:trebuchet ms,geneva;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
   <tbody>

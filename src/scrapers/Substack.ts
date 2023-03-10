@@ -1,9 +1,9 @@
 import { Browser, Page, ElementHandle, JSHandle } from "puppeteer-core";
 import chromium from "chrome-aws-lambda";
+
 import { cleanHTMLContent } from "../utils/preprocessing.js";
 import { inifinteScrollToBottom } from "../utils/scrapeHelpers.js";
-import { viewport } from "../utils/constants.js";
-import { ResourceI } from "../index.js";
+import { viewport, ResourceI } from "../utils/constants.js";
 
 export default class Substack {
   browser: Browser;
