@@ -90,6 +90,7 @@ const handleSendFeed = async (message: Array<string>) => {
   const user = JSON.parse(message[1]);
   const resources = JSON.parse(message[2]);
   const latestResources = JSON.parse(message[3]);
+  const timeToSend = Number(message[4]);
 
   try {
     await summarizeResources(resources);
@@ -111,6 +112,7 @@ const handleSendFeed = async (message: Array<string>) => {
       subject: "Your personalized source for informative and inspiring content",
       text: "Your daily dose of knowledge, tailored for you: Stay informed effortlessly with your personal digest.",
       html: message,
+      sendAt: timeToSend
     });
     console.log("Email sent to user: " + user.email);
   } catch (err) {
