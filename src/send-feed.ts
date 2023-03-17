@@ -92,19 +92,24 @@ const handleSendFeed = async (message: Array<string>) => {
   const latestResources = JSON.parse(message[3]);
   const timeToSend = Number(message[4]);
 
-  try {
-    await summarizeResources(resources);
-    await summarizeResources(latestResources);
-  } catch (err) {
-    console.error(
-      "Couldn't summarize resources for user: " + user.email
-    );
-    throw err;
+  if (user.isSummaryEnabled) {
+    console.log("Summary enabled for user")
+    try {
+      await summarizeResources(resources);
+      await summarizeResources(latestResources);
+    } catch (err) {
+      console.error(
+        "Couldn't summarize resources for user: " + user.email
+      );
+      throw err;
+    }
+  } else {
+    console.log("Summary disabled for user")
   }
 
   try {
     console.log("Sending email to user: " + user.email);
-    const message = generateEmailTemplate(resources, latestResources);
+    const message = generateEmailTemplate(resources, latestResources, user.isSummaryEnabled);
     Sendgrid.setApiKey(process.env.SENDGRID_API_KEY || "");
     await Sendgrid.send({
       to: user.email,
@@ -150,38 +155,50 @@ const handleSendFeed = async (message: Array<string>) => {
   }
 
   try {
-    console.log("Saving summaries of resources");
-
-    const resourcesWithNewSummaries = resources.map((resource: { id: string, summary: string; isSummaryNew: boolean }) => {
+    const resourcesWithNewSummaries = [...(resources.map((resource: { id: string, summary: string; isSummaryNew: boolean }) => {
       if (resource.summary && resource.isSummaryNew) {
         return {
           id: resource.id,
           summary: resource.summary
         }
       }
-    });
+    })), ...(latestResources.map((resource: { id: string, summary: string; isSummaryNew: boolean }) => {
+      if (resource.summary && resource.isSummaryNew) {
+        return {
+          id: resource.id,
+          summary: resource.summary
+        }
+      }
+    }))]
 
-    const response = await fetch(BASE_URL + "/resource/update-resource-summary", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        resources: resourcesWithNewSummaries
-      }),
-    });
+    console.log("Resources with new summaries", resourcesWithNewSummaries);
 
-    const data: { message?: string } = (await response.json()) || { message: '' };
+    if (resourcesWithNewSummaries.length > 0) {
+      console.log("Saving summaries of resources");
 
-    if (!response.ok) {
-      if (response.status === 404) throw new Error("Not found: " + data?.message || "");
-      else if (response.status === 401)
-        throw new Error("Unauthorized: " + data?.message);
-      else throw new Error(data?.message);
+      const response = await fetch(BASE_URL + "/resource/update-resource-summary", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resources: resourcesWithNewSummaries
+        }),
+      });
+
+      const data: { message?: string } = (await response.json()) || { message: '' };
+
+      if (!response.ok) {
+        if (response.status === 404) throw new Error("Not found: " + data?.message || "");
+        else if (response.status === 401)
+          throw new Error("Unauthorized: " + data?.message);
+        else throw new Error(data?.message);
+      }
+
+      console.log("Succesfully saved resource summaries", data.message);
     }
-
-    console.log("Succesfully saved resource summaries", data.message);
   } catch (err) {
+    console.error("Could not save summaries, something went wrong: ", err)
   }
 }
 

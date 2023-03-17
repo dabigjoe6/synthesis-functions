@@ -1,5 +1,5 @@
 import { ResourceI } from "./constants.js";
-const generatePost = (post: ResourceI) => `
+const generatePost = (post: ResourceI, isSummaryEnabled: boolean) => `
 <table style="font-family:trebuchet ms,geneva;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
   <tbody>
     <tr>
@@ -19,15 +19,14 @@ const generatePost = (post: ResourceI) => `
       <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:0px 10px 10px;font-family:trebuchet ms,geneva;" align="left">
 
         <div class="v-text-align v-line-height" style="color: #34495e; line-height: 120%; text-align: left; word-wrap: break-word;">
-          <p style="font-size: 14px; line-height: 120%; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 10; line-clamp: 10; -webkit-box-orient: vertical; max-height: 18em; line-height: 1.8em;">${post?.summary
+          <p style="font-size: 14px; line-height: 120%; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 10; line-clamp: 10; -webkit-box-orient: vertical; max-height: 18em; line-height: 1.8em;">${isSummaryEnabled ? post?.summary
     //TODO: Handle column put in summary 
     ? post?.summary[0] === ":"
       ? "Summary" + post.summary
       : "Summary: " + post.summary
     : post.description
-  }</p>
+    : post.description}</p>
         </div>
-
       </td>
     </tr>
   </tbody>
@@ -48,17 +47,17 @@ const generatePost = (post: ResourceI) => `
   </tbody>
 </table>`;
 
-const generateEmailTemplate = (posts: ResourceI[], latestPosts: ResourceI[]) => {
+const generateEmailTemplate = (posts: ResourceI[], latestPosts: ResourceI[], isSummaryEnabled: boolean) => {
   if (posts && posts.length > 0) {
     let postsHTML = "";
     let latestPostsHTML = "";
 
     latestPosts.forEach((post) => {
-      latestPostsHTML += generatePost(post);
+      latestPostsHTML += generatePost(post, isSummaryEnabled);
     });
 
     posts.forEach((post) => {
-      postsHTML += generatePost(post);
+      postsHTML += generatePost(post, isSummaryEnabled);
     });
 
     return `<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
