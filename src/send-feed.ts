@@ -171,9 +171,10 @@ const handleSendFeed = async (message: Array<string>) => {
       }
     }))]
 
-    console.log("Resources with new summaries", resourcesWithNewSummaries);
+    const filteredResourcesWithNewSummaries = resourcesWithNewSummaries.filter(resource => resource !== undefined);
 
-    if (resourcesWithNewSummaries.length > 0) {
+
+    if (filteredResourcesWithNewSummaries.length > 0) {
       console.log("Saving summaries of resources");
 
       const response = await fetch(BASE_URL + "/resource/update-resource-summary", {
@@ -182,7 +183,7 @@ const handleSendFeed = async (message: Array<string>) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          resources: resourcesWithNewSummaries
+          resources: filteredResourcesWithNewSummaries
         }),
       });
 
