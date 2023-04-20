@@ -10,6 +10,7 @@ import { Sources, ResourceI } from "./utils/constants.js";
 
 import MediumScraper from './scrapers/Medium.js';
 import SubstackScraper from './scrapers/Substack.js';
+import readingTime from "reading-time";
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -26,8 +27,8 @@ const summarizeMediumPost = async (resource: ResourceI, summarizer: Summarizer) 
 
   // summarize
   if (mediumPost) {
-    resource.post = mediumPost;
     resource.summary = await summarizer.summarize(mediumPost);
+    resource.readLength = readingTime(mediumPost).text
     resource.isSummaryNew = true;
     resource.lastSummaryUpdate = new Date();
   } else {
@@ -41,8 +42,8 @@ const summarizeSubstackPost = async (resource: ResourceI, summarizer: Summarizer
 
   // summarize
   if (substackPost) {
-    resource.post = substackPost;
     resource.summary = await summarizer.summarize(substackPost);
+    resource.readLength = readingTime(substackPost).text
     resource.isSummaryNew = true;
     resource.lastSummaryUpdate = new Date();
   } else {
@@ -53,6 +54,7 @@ const summarizeSubstackPost = async (resource: ResourceI, summarizer: Summarizer
 const summarizeRSSPost = async (resource: ResourceI, summarizer: Summarizer) => {
   if (resource.content) {
     resource.summary = await summarizer.summarize(resource.content);
+    resource.readLength = readingTime(resource.content).text
     resource.isSummaryNew = true;
     resource.lastSummaryUpdate = new Date();
   }
@@ -165,11 +167,12 @@ const handleSendFeed = async (message: Array<string>) => {
           summary: resource.summary
         }
       }
-    })), ...(latestResources.map((resource: { id: string, summary: string; isSummaryNew: boolean }) => {
+    })), ...(latestResources.map((resource: { id: string, summary: string; isSummaryNew: boolean; readLength: string }) => {
       if (resource.summary && resource.isSummaryNew) {
         return {
           id: resource.id,
-          summary: resource.summary
+          summary: resource.summary,
+          readLength: resource.readLength
         }
       }
     }))]
@@ -180,7 +183,7 @@ const handleSendFeed = async (message: Array<string>) => {
     if (filteredResourcesWithNewSummaries.length > 0) {
       console.log("Saving summaries of resources");
 
-      const response = await fetch(BASE_URL + "/resource/update-resource-summary", {
+      const response = await fetch(BASE_URL + "/resource/update-resource-summary-and-read-length", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
