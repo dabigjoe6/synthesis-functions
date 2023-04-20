@@ -19,6 +19,7 @@ export interface ResourceI {
   numberOfComments?: number;
   latest: boolean;
   isSummaryNew?: boolean;
+  post?: string;
 }
 
 export const viewport = {

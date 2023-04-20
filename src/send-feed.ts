@@ -26,6 +26,7 @@ const summarizeMediumPost = async (resource: ResourceI, summarizer: Summarizer) 
 
   // summarize
   if (mediumPost) {
+    resource.post = mediumPost;
     resource.summary = await summarizer.summarize(mediumPost);
     resource.isSummaryNew = true;
     resource.lastSummaryUpdate = new Date();
@@ -40,6 +41,7 @@ const summarizeSubstackPost = async (resource: ResourceI, summarizer: Summarizer
 
   // summarize
   if (substackPost) {
+    resource.post = substackPost;
     resource.summary = await summarizer.summarize(substackPost);
     resource.isSummaryNew = true;
     resource.lastSummaryUpdate = new Date();
@@ -152,6 +154,7 @@ const handleSendFeed = async (message: Array<string>) => {
 
     console.log("Succesfully marked resources as seen!", data.message);
   } catch (err) {
+    console.warn("Could not mark resource as seen", err);
   }
 
   try {
