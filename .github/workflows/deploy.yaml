@@ -14,15 +14,16 @@ jobs:
         run: |
           if [[ "${{ github.ref }}" == 'refs/heads/main' ]]; then
             export BRANCH=STAGING
+
           elif [[ "${{ github.ref }}" == "refs/tags/release-"* ]]; then
             export BRANCH=PROD
           else
             export BRANCH=DEV
           fi
           echo "Setting environment variables for branch: $BRANCH"
-          echo "${{ format('{0}_AWS_ECR_REGISTRY', env.BRANCH) }}"
-          echo "${{ env.STAGING_AWS_ECR_REGISTRY }}"
-          echo "${{ env.BRANCH }}"
+          echo "${{ format('{0}_AWS_ECR_REGISTRY', $BRANCH) }}"
+          echo "$STAGING_AWS_ECR_REGISTRY"
+          echo "$BRANCH"
           export AWS_ECR_REGISTRY=${{ env[format('{0}_AWS_ECR_REGISTRY', env.BRANCH)] }}
           echo "AWS_ECR_REGISTRY: $AWS_ECR_REGISTRY"
           export FUNCTION_NAME=${{ env[format('{0}_FUNCTION_NAME', env.BRANCH)] }}
