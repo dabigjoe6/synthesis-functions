@@ -2,17 +2,18 @@ name: Deploy with Terraform
 on:
   tags:
     - 'release-*.*.*'
+
+env: 
+  FUNCTION_NAME: ${{ env.FUNCTION_NAME_PROD }}
+  BASE_URL: ${{ env.BASE_URL_PROD }}
+  FROM: ${{ env.FROM_PROD }}
+  NO_OF_POSTS_SENT_TO_USERS: ${{ env.NO_OF_POSTS_SENT_TO_USERS_PROD }}
+  OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
+  SENDGRID_API_KEY: ${{ env. SENDGRID_API_KEY }}
+  SYNC_HOURS: ${{ env.SYNC_HOURS }}
+  AWS_ECR_REGISTRY: ${{ env.AWS_ECR_REGISTRY }}
 jobs:
   deploy:
-    env: 
-      FUNCTION_NAME: ${{ env.FUNCTION_NAME_PROD }}
-      BASE_URL: ${{ env.BASE_URL_PROD }}
-      FROM: ${{ env.FROM_PROD }}
-      NO_OF_POSTS_SENT_TO_USERS: ${{ env.NO_OF_POSTS_SENT_TO_USERS_PROD }}
-      OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
-      SENDGRID_API_KEY: ${{ env. SENDGRID_API_KEY }}
-      SYNC_HOURS: ${{ env.SYNC_HOURS }}
-      AWS_ECR_REGISTRY: ${{ env.AWS_ECR_REGISTRY }}
     runs-on: ubuntu-latest
     steps:
       - name: Set environment variables
