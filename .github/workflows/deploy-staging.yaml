@@ -6,17 +6,17 @@ on:
   pull_request:
     branches:
       - main
-jobs:
-  env: 
-    FUNCTION_NAME: ${{ env.FUNCTION_NAME_STAGING }}
-    BASE_URL: ${{ env.BASE_URL_STAGING }}
-    FROM: ${{ env.FROM_STAGING }}
-    NO_OF_POSTS_SENT_TO_USERS: ${{ env.NO_OF_POSTS_SENT_TO_USERS_STAGING }}
-    OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
-    SENDGRID_API_KEY: ${{ env. SENDGRID_API_KEY }}
-    SYNC_HOURS: ${{ env.SYNC_HOURS }}
-    AWS_ECR_REGISTRY: ${{ env.AWS_ECR_REGISTRY }}
+jobs:  
   deploy:
+    environment: 
+      FUNCTION_NAME: ${{ env.FUNCTION_NAME_STAGING }}
+      BASE_URL: ${{ env.BASE_URL_STAGING }}
+      FROM: ${{ env.FROM_STAGING }}
+      NO_OF_POSTS_SENT_TO_USERS: ${{ env.NO_OF_POSTS_SENT_TO_USERS_STAGING }}
+      OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
+      SENDGRID_API_KEY: ${{ env. SENDGRID_API_KEY }}
+      SYNC_HOURS: ${{ env.SYNC_HOURS }}
+      AWS_ECR_REGISTRY: ${{ env.AWS_ECR_REGISTRY }}
     runs-on: ubuntu-latest
     steps:
       - name: Set environment variables
