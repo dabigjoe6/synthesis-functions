@@ -19,14 +19,14 @@ jobs:
           else
             export BRANCH=DEV
           fi
-          export AWS_ECR_REGISTRY=${{ env["${{ env.BRANCH }}_AWS_ECR_REGISTRY"] }}
-          export FUNCTION_NAME=${{ env["${{ env.BRANCH }}_FUNCTION_NAME"] }}
-          export BASE_URL=${{ env["${{ env.BRANCH }}_BASE_URL"] }}
-          export FROM=${{ env["${{ env.BRANCH }}_FROM"] }}
-          export NO_OF_POSTS_SENT_TO_USERS=${{ env["${{ env.BRANCH }}_NO_OF_POSTS_SENT_TO_USERS"] }}
-          export OPENAI_API_KEY=${{ env["${{ env.BRANCH }}_OPENAI_API_KEY"] }}
-          export SENDGRID_API_KEY=${{ env["${{ env.BRANCH }}_SENDGRID_API_KEY"] }}
-          export SYNC_HOURS=${{ env["${{ env.BRANCH }}_SYNC_HOURS"] }}
+          export AWS_ECR_REGISTRY=${{ env[${{ env.BRANCH }}_AWS_ECR_REGISTRY] }}
+          export FUNCTION_NAME=${{ env[${{ env.BRANCH }}_FUNCTION_NAME] }}
+          export BASE_URL=${{ env[${{ env.BRANCH }}_BASE_URL] }}
+          export FROM=${{ env[${{ env.BRANCH }}_FROM] }}
+          export NO_OF_POSTS_SENT_TO_USERS=${{ env[${{ env.BRANCH }}_NO_OF_POSTS_SENT_TO_USERS] }}
+          export OPENAI_API_KEY=${{ env[${{ env.BRANCH }}_OPENAI_API_KEY] }}
+          export SENDGRID_API_KEY=${{ env[${{ env.BRANCH }}_SENDGRID_API_KEY] }}
+          export SYNC_HOURS=${{ env[${{ env.BRANCH }}_SYNC_HOURS] }}
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Login to AWS ECR
