@@ -27,6 +27,7 @@ jobs:
           export OPENAI_API_KEY=${{ env[format('{0}_OPENAI_API_KEY', env.BRANCH)] }}
           export SENDGRID_API_KEY=${{ env[format('{0}_SENDGRID_API_KEY', env.BRANCH)] }}
           export SYNC_HOURS=${{ env[format('{0}_SYNC_HOURS', env.BRANCH)] }}
+          export AWS_REGION=eu-west-2
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Login to AWS ECR
