@@ -4,7 +4,7 @@ on:
     - 'release-*.*.*'
 jobs:
   deploy:
-    environment: 
+    env: 
       FUNCTION_NAME: ${{ env.FUNCTION_NAME_PROD }}
       BASE_URL: ${{ env.BASE_URL_PROD }}
       FROM: ${{ env.FROM_PROD }}

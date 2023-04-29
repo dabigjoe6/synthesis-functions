@@ -8,7 +8,7 @@ on:
       - dev
 jobs:
   deploy:
-    environment: 
+    env: 
       FUNCTION_NAME: ${{ env.FUNCTION_NAME_DEV }}
       BASE_URL: ${{ env.BASE_URL_DEV }}
       FROM: ${{ env.FROM_DEV }}
