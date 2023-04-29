@@ -19,14 +19,23 @@ jobs:
           else
             export BRANCH=DEV
           fi
+          echo "Setting environment variables for branch: $BRANCH"
           export AWS_ECR_REGISTRY=${{ env[format('{0}_AWS_ECR_REGISTRY', env.BRANCH)] }}
+          echo "AWS_ECR_REGISTRY: $AWS_ECR_REGISTRY"
           export FUNCTION_NAME=${{ env[format('{0}_FUNCTION_NAME', env.BRANCH)] }}
+          echo "FUNCTION_NAME: $FUNCTION_NAME"
           export BASE_URL=${{ env[format('{0}_BASE_URL', env.BRANCH)] }}
+          echo "BASE_URL: $BASE_URL"
           export FROM=${{ env[format('{0}_FROM', env.BRANCH)] }}
+          echo "FROM: $FROM"
           export NO_OF_POSTS_SENT_TO_USERS=${{ env[format('{0}_NO_OF_POSTS_SENT_TO_USERS', env.BRANCH)] }}
+          echo "NO_OF_POSTS_SENT_TO_USERS: $NO_OF_POSTS_SENT_TO_USERS"
           export OPENAI_API_KEY=${{ env[format('{0}_OPENAI_API_KEY', env.BRANCH)] }}
+          echo "OPENAI_API_KEY: $OPENAI_API_KEY"
           export SENDGRID_API_KEY=${{ env[format('{0}_SENDGRID_API_KEY', env.BRANCH)] }}
+          echo "SENDGRID_API_KEY: $SENDGRID_API_KEY"
           export SYNC_HOURS=${{ env[format('{0}_SYNC_HOURS', env.BRANCH)] }}
+          echo "SYNC_HOURS: $SYNC_HOURS"
           export AWS_REGION=eu-west-2
       - name: Checkout code
         uses: actions/checkout@v2
