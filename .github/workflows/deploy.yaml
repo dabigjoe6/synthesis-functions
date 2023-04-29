@@ -12,9 +12,9 @@ jobs:
     steps:
       - name: Set environment variables
         run: |
-          if [ ${{ github.ref }} == 'refs/heads/main' ]; then
+          if [[ "${{ github.ref }}" == 'refs/heads/main' ]]; then
             export BRANCH=STAGING
-          elif [[ ${{ github.ref }} == "refs/tags/release-"* ]]; then
+          elif [[ "${{ github.ref }}" == "refs/tags/release-"* ]]; then
             export BRANCH=PROD
           else
             export BRANCH=DEV
