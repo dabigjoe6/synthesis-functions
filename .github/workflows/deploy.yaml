@@ -21,7 +21,7 @@ jobs:
             export BRANCH=DEV
           fi
           echo "Setting environment variables for branch: $BRANCH"
-          echo "$STAGING_AWS_ECR_REGISTRY"
+          echo "${{ env.STAGING_AWS_ECR_REGISTRY }}"
           echo "$BRANCH"
           export AWS_ECR_REGISTRY=${{ env[format('{0}_AWS_ECR_REGISTRY', env.BRANCH)] }}
           echo "AWS_ECR_REGISTRY: $AWS_ECR_REGISTRY"
