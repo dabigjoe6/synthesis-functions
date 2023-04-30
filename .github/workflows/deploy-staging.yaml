@@ -18,8 +18,14 @@ jobs:
       SENDGRID_API_KEY: ${{ vars. SENDGRID_API_KEY }}
       SYNC_HOURS: ${{ vars.SYNC_HOURS }}
       AWS_ECR_REGISTRY: ${{ vars.AWS_ECR_REGISTRY }}
+      AWS_REGION: eu-west-2
+      AWS_DEFAULT_REGION: eu-west-2
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: eu-west-2
     runs-on: ubuntu-latest
     steps:
+      - name: Print Set Environment variables
       - run: |
           echo "FUNCTION_NAME: $FUNCTION_NAME"
           echo "BASE_URL: $BASE_URL"
@@ -29,8 +35,7 @@ jobs:
           echo "SENDGRID_API_KEY: $SENDGRID_API_KEY"
           echo "SYNC_HOURS: $SYNC_HOURS"
           echo "AWS_ECR_REGISTRY: $AWS_ECR_REGISTRY"
-      - name: Set environment variables
-        run: export AWS_REGION=eu-west-2
+          echo "AWS_REGION: $AWS_REGION"
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Configure AWS Credentials
@@ -38,7 +43,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-west-2
+          aws-region: ${{ env.AWS_REGION }}
       - name: Login to AWS ECR
         uses: aws-actions/amazon-ecr-login@v1
       - name: Build Docker image
