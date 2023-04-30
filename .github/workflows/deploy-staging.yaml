@@ -27,8 +27,8 @@ jobs:
           echo "NO_OF_POSTS_SENT_TO_USERS: $NO_OF_POSTS_SENT_TO_USERS"
           echo "OPENAI_API_KEY: $OPENAI_API_KEY"
           echo "SENDGRID_API_KEY: $SENDGRID_API_KEY"
-          echo: "SYNC_HOURS: $SYNC_HOURS"
-          echo: "AWS_ECR_REGISTRY: $AWS_ECR_REGISTRY"
+          echo "SYNC_HOURS: $SYNC_HOURS"
+          echo "AWS_ECR_REGISTRY: $AWS_ECR_REGISTRY"
       - name: Set environment variables
         run: export AWS_REGION=eu-west-2
       - name: Checkout code
