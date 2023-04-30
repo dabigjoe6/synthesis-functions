@@ -22,11 +22,10 @@ jobs:
       AWS_DEFAULT_REGION: eu-west-2
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: eu-west-2
     runs-on: ubuntu-latest
     steps:
       - name: Print Set Environment variables
-      - run: |
+        run: |
           echo "FUNCTION_NAME: $FUNCTION_NAME"
           echo "BASE_URL: $BASE_URL"
           echo "FROM: $FROM"
