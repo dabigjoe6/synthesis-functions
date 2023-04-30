@@ -7,20 +7,28 @@ on:
     branches:
       - main
 
-
-env: 
-  FUNCTION_NAME: ${{ env.FUNCTION_NAME_STAGING }}
-  BASE_URL: ${{ env.BASE_URL_STAGING }}
-  FROM: ${{ env.FROM_STAGING }}
-  NO_OF_POSTS_SENT_TO_USERS: ${{ env.NO_OF_POSTS_SENT_TO_USERS_STAGING }}
-  OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
-  SENDGRID_API_KEY: ${{ env. SENDGRID_API_KEY }}
-  SYNC_HOURS: ${{ env.SYNC_HOURS }}
-  AWS_ECR_REGISTRY: ${{ env.AWS_ECR_REGISTRY }}
 jobs:  
   deploy:
     runs-on: ubuntu-latest
+    env: 
+      FUNCTION_NAME: ${{ env.FUNCTION_NAME_STAGING }}
+      BASE_URL: ${{ env.BASE_URL_STAGING }}
+      FROM: ${{ env.FROM_STAGING }}
+      NO_OF_POSTS_SENT_TO_USERS: ${{ env.NO_OF_POSTS_SENT_TO_USERS_STAGING }}
+      OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
+      SENDGRID_API_KEY: ${{ env. SENDGRID_API_KEY }}
+      SYNC_HOURS: ${{ env.SYNC_HOURS }}
+      AWS_ECR_REGISTRY: ${{ env.AWS_ECR_REGISTRY }}
     steps:
+      - run: |
+          echo "FUNCTION_NAME: $FUNCTION_NAME"
+          echo "BASE_URL: $BASE_URL"
+          echo "FROM: $FROM"
+          echo "NO_OF_POSTS_SENT_TO_USERS: $NO_OF_POSTS_SENT_TO_USERS"
+          echo "OPENAI_API_KEY: $OPENAI_API_KEY"
+          echo "SENDGRID_API_KEY: $SENDGRID_API_KEY"
+          echo: "SYNC_HOURS: $SYNC_HOURS"
+          echo: "AWS_ECR_REGISTRY: $AWS_ECR_REGISTRY"
       - name: Set environment variables
         run: export AWS_REGION=eu-west-2
       - name: Checkout code
@@ -34,11 +42,11 @@ jobs:
       - name: Login to AWS ECR
         uses: aws-actions/amazon-ecr-login@v1
       - name: Build Docker image
-        run: docker build -t ${{ env.FUNCTION_NAME_STAGING }} .
+        run: docker build -t ${{ env.FUNCTION_NAME }} .
       - name: Tag Docker image
-        run: docker tag ${{ env.FUNCTION_NAME_STAGING }}:latest ${{ env.AWS_ECR_REGISTRY }}/${{ env.FUNCTION_NAME_STAGING }}:latest
+        run: docker tag ${{ env.FUNCTION_NAME}}:latest ${{ env.AWS_ECR_REGISTRY }}/${{ env.FUNCTION_NAME }}:latest
       - name: Upload Docker image to AWS ECR
-        run: docker push ${{ env.AWS_ECR_REGISTRY }}/${{ env.FUNCTION_NAME_STAGING }}:latest
+        run: docker push ${{ env.AWS_ECR_REGISTRY }}/${{ env.FUNCTION_NAME }}:latest
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v1
         with:

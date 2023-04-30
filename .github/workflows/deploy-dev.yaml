@@ -7,18 +7,18 @@ on:
     branches:
       - dev
 
-env: 
-  FUNCTION_NAME: ${{ env.FUNCTION_NAME_DEV }}
-  BASE_URL: ${{ env.BASE_URL_DEV }}
-  FROM: ${{ env.FROM_DEV }}
-  NO_OF_POSTS_SENT_TO_USERS: ${{ env.NO_OF_POSTS_SENT_TO_USERS_DEV }}
-  OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
-  SENDGRID_API_KEY: ${{ env. SENDGRID_API_KEY }}
-  SYNC_HOURS: ${{ env.SYNC_HOURS }}
-  AWS_ECR_REGISTRY: ${{ env.AWS_ECR_REGISTRY }}
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env: 
+      FUNCTION_NAME: ${{ env.FUNCTION_NAME_DEV }}
+      BASE_URL: ${{ env.BASE_URL_DEV }}
+      FROM: ${{ env.FROM_DEV }}
+      NO_OF_POSTS_SENT_TO_USERS: ${{ env.NO_OF_POSTS_SENT_TO_USERS_DEV }}
+      OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
+      SENDGRID_API_KEY: ${{ env. SENDGRID_API_KEY }}
+      SYNC_HOURS: ${{ env.SYNC_HOURS }}
+      AWS_ECR_REGISTRY: ${{ env.AWS_ECR_REGISTRY }}
     steps:
       - name: Set environment variables
         run: export AWS_REGION=eu-west-2
