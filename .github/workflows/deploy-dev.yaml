@@ -8,15 +8,15 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env: 
-      FUNCTION_NAME: ${{ env.FUNCTION_NAME_DEV }}
-      BASE_URL: ${{ env.BASE_URL_DEV }}
-      FROM: ${{ env.FROM_DEV }}
-      NO_OF_POSTS_SENT_TO_USERS: ${{ env.NO_OF_POSTS_SENT_TO_USERS_DEV }}
-      OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
-      SENDGRID_API_KEY: ${{ env. SENDGRID_API_KEY }}
-      SYNC_HOURS: ${{ env.SYNC_HOURS }}
-      AWS_ECR_REGISTRY: ${{ env.AWS_ECR_REGISTRY }}
+    env:
+      FUNCTION_NAME: ${{ vars.FUNCTION_NAME_DEV }}
+      BASE_URL: ${{ vars.BASE_URL_DEV }}
+      FROM: ${{ vars.FROM_DEV }}
+      NO_OF_POSTS_SENT_TO_USERS: ${{ vars.NO_OF_POSTS_SENT_TO_USERS_DEV }}
+      OPENAI_API_KEY: ${{ vars.OPENAI_API_KEY }}
+      SENDGRID_API_KEY: ${{ vars. SENDGRID_API_KEY }}
+      SYNC_HOURS: ${{ vars.SYNC_HOURS }}
+      AWS_ECR_REGISTRY: ${{ vars.AWS_ECR_REGISTRY }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
