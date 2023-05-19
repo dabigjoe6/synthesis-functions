@@ -8,7 +8,7 @@
     "module": "es2022",
     "moduleResolution": "node"
   },
-  "include": ["./src/**/*"],
+  "include": ["./src/**/*", "./bin/*", "./lib/*"],
   "ts-node": {
     "files": true
   },
