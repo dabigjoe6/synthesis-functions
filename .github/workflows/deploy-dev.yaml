@@ -18,6 +18,16 @@ jobs:
       SYNC_HOURS: ${{ vars.SYNC_HOURS }}
       AWS_ECR_REGISTRY: ${{ vars.AWS_ECR_REGISTRY }}
     steps:
+      - name: Environment variables set
+        run: |
+          echo FUNCTION_NAME: $FUNCTION_NAME
+          echo BASE_URL: $BASE_URL
+          echo FROM: $FROM
+          echo NO_OF_POSTS_SENT_TO_USERS: $NO_OF_POSTS_SENT_TO_USERS
+          echo OPENAI_API_KEY: $OPENAI_API_KEY
+          echo SENDGRID_API_KEY: $SENDGRID_API_KEY
+          echo SYNC_HOURS: $SYNC_HOURS
+          echo AWS_ECR_REGISTRY: $AWS_ECR_REGISTRY
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Configure AWS Credentials
