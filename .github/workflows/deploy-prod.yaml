@@ -1,7 +1,8 @@
 name: Deploy with AWS CDK
 on:
-  tags:
-    - 'release-*.*.*'
+  push:
+    tags:
+      - 'release-*.*.*'
 
 jobs:
   deploy:
