@@ -28,6 +28,10 @@ jobs:
           echo SENDGRID_API_KEY: $SENDGRID_API_KEY
           echo SYNC_HOURS: $SYNC_HOURS
           echo AWS_ECR_REGISTRY: $AWS_ECR_REGISTRY
+          transformed_text=$(echo "$FUNCTION_NAME" | sed -E 's/(^|_)(\w)/\U\2/g')
+          transformed_text+="Stack"
+          export STACK_NAME=$transformed_text
+          echo STACK_NAME: $STACK_NAME
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Configure AWS Credentials
@@ -57,7 +61,7 @@ jobs:
       - name: Install CDK dependencies
         run: npm ci
       - name: Deploy CDK stack
-        run: npx cdk deploy SynthesisStack --require-approval never
+        run: npx cdk deploy $STACK_NAME --require-approval never
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
