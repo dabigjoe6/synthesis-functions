@@ -1,0 +1,62 @@
+name: Deploy with AWS CDK
+on:
+  tags:
+    - 'release-*.*.*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env: 
+      FUNCTION_NAME: ${{ env.FUNCTION_NAME_PROD }}
+      BASE_URL: ${{ env.BASE_URL_PROD }}
+      FROM: ${{ env.FROM_PROD }}
+      NO_OF_POSTS_SENT_TO_USERS: ${{ env.NO_OF_POSTS_SENT_TO_USERS_PROD }}
+      OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
+      SENDGRID_API_KEY: ${{ env. SENDGRID_API_KEY }}
+      SYNC_HOURS: ${{ env.SYNC_HOURS }}
+      AWS_ECR_REGISTRY: ${{ env.AWS_ECR_REGISTRY }}
+    steps:
+      - name: Print environment variables
+        run: |
+          echo "FUNCTION_NAME: $FUNCTION_NAME"
+          echo "BASE_URL: $BASE_URL"
+          echo "FROM: $FROM"
+          echo "NO_OF_POSTS_SENT_TO_USERS: $NO_OF_POSTS_SENT_TO_USERS"
+          echo "OPENAI_API_KEY: $OPENAI_API_KEY"
+          echo "SENDGRID_API_KEY: $SENDGRID_API_KEY"
+          echo "SYNC_HOURS: $SYNC_HOURS"
+          echo "AWS_ECR_REGISTRY: $AWS_ECR_REGISTRY"
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-2
+      - name: Login to AWS ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.FUNCTION_NAME }}
+          IMAGE_TAG: latest
+        run: |
+          echo "ECR_REGISTRY: $ECR_REGISTRY"
+          echo "ECR_REPOSITORY: $ECR_REPOSITORY"
+          echo "IMAGE_TAG: $IMAGE_TAG"
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+      - name: Install CDK dependencies
+        run: npm ci
+      - name: Deploy CDK stack
+        run: npx cdk deploy SynthesisStack --require-approval never
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: eu-west-2
