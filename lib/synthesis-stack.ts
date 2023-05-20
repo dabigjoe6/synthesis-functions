@@ -8,14 +8,14 @@ export class SynthesisStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const queue = new cdk.aws_sqs.Queue(this, process.env.FUNCTION_NAME_DEV + "_queue", {
+    const queue = new cdk.aws_sqs.Queue(this, process.env.FUNCTION_NAME + "_queue", {
       visibilityTimeout: cdk.Duration.minutes(30),
       retentionPeriod: cdk.Duration.days(4),
       deliveryDelay: cdk.Duration.seconds(0),
 
     });
 
-    new lambda.DockerImageFunction(this, process.env.FUNCTION_NAME_DEV + "_lambda", {
+    new lambda.DockerImageFunction(this, process.env.FUNCTION_NAME + "_lambda", {
       code: lambda.DockerImageCode.fromEcr(cdk.aws_ecr.Repository.fromRepositoryArn(this, 'synthesis_repo', 'arn:aws:ecr:eu-west-2:240699656698:repository/subscriptions')), // Specify the path to your Dockerfile
       memorySize: 2024,
       ephemeralStorageSize: cdk.Size.mebibytes(2024),
