@@ -57,7 +57,9 @@ jobs:
       - name: Install CDK dependencies
         run: npm ci
       - name: Deploy CDK stack
-        run: npx cdk deploy SynthesisStack --require-approval never
+        run: |
+          export STACK_NAME="$(echo "$FUNCTION_NAME" | sed -E 's/(^|_)(\w)/\U\2/g')Stack"
+          npx cdk deploy $STACK_NAME  --require-approval never
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
