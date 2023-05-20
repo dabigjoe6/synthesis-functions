@@ -1,4 +1,4 @@
-name: Deploy with Terraform
+name: Deploy with AWS CDK
 on:
   push:
     branches:
