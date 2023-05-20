@@ -22,12 +22,12 @@ export class SynthesisStack extends cdk.Stack {
       timeout: cdk.Duration.minutes(5),
       events: [new SqsEventSource(queue)],
       environment: {
-        BASE_URL: "https://38ad-2a01-4b00-86ff-f600-1e4-12ce-7517-c42b.ngrok-free.app",
-        FROM: "josepholabisi6000@gmail.com",
-        NO_OF_POSTS_SENT_TO_USERS: "1",
-        OPENAI_API_KEY: "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",
-        SENDGRID_API_KEY: "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",
-        SYNC_HOURS: "4"
+        BASE_URL: process.env.BASE_URL || "https://38ad-2a01-4b00-86ff-f600-1e4-12ce-7517-c42b.ngrok-free.app",
+        FROM: process.env.FROM || "josepholabisi6000@gmail.com",
+        NO_OF_POSTS_SENT_TO_USERS: process.env.NO_OF_POSTS_SENT_TO_USERS || "1",
+        OPENAI_API_KEY: process.env.OPENAI_API_KEY || "",
+        SENDGRID_API_KEY: process.env.SENDGRID_API_KEY || "",
+        SYNC_HOURS: process.env.SYNC_HOURS || "4"
       }
     });
   }
