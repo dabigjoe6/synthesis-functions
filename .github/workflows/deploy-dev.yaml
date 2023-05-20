@@ -30,7 +30,7 @@ jobs:
           echo AWS_ECR_REGISTRY: $AWS_ECR_REGISTRY
           transformed_text=$(echo "$FUNCTION_NAME" | sed -E 's/(^|_)(\w)/\U\2/g')
           transformed_text+="Stack"
-          export STACK_NAME=$transformed_text"
+          export STACK_NAME=$transformed_text
           echo STACK_NAME: $STACK_NAME
       - name: Checkout code
         uses: actions/checkout@v2
