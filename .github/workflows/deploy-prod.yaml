@@ -8,16 +8,16 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env: 
-      FUNCTION_NAME: ${{ env.FUNCTION_NAME_PROD }}
-      BASE_URL: ${{ env.BASE_URL_PROD }}
-      FROM: ${{ env.FROM_PROD }}
-      NO_OF_POSTS_SENT_TO_USERS: ${{ env.NO_OF_POSTS_SENT_TO_USERS_PROD }}
-      OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
-      SENDGRID_API_KEY: ${{ env. SENDGRID_API_KEY }}
-      SYNC_HOURS: ${{ env.SYNC_HOURS }}
-      AWS_ECR_REGISTRY: ${{ env.AWS_ECR_REGISTRY }}
+      FUNCTION_NAME: ${{ vars.FUNCTION_NAME_PROD }}
+      BASE_URL: ${{ vars.BASE_URL_PROD }}
+      FROM: ${{ vars.FROM_PROD }}
+      NO_OF_POSTS_SENT_TO_USERS: ${{ vars.NO_OF_POSTS_SENT_TO_USERS_PROD }}
+      OPENAI_API_KEY: ${{ vars.OPENAI_API_KEY }}
+      SENDGRID_API_KEY: ${{ vars. SENDGRID_API_KEY }}
+      SYNC_HOURS: ${{ vars.SYNC_HOURS }}
+      AWS_ECR_REGISTRY: ${{ vars.AWS_ECR_REGISTRY }}
     steps:
-      - name: Print environment variables
+      - name: Environment variables set
         run: |
           echo "FUNCTION_NAME: $FUNCTION_NAME"
           echo "BASE_URL: $BASE_URL"
