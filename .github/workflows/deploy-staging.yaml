@@ -17,7 +17,7 @@ jobs:
       NO_OF_POSTS_SENT_TO_USERS: ${{ vars.NO_OF_POSTS_SENT_TO_USERS_STAGING }}
       OPENAI_API_KEY: ${{ vars.OPENAI_API_KEY }}
       SENDGRID_API_KEY: ${{ vars.SENDGRID_API_KEY }}
-      SYNC_HOURS: ${{ vars.SYNC_HOURS }}
+      SYNC_HOURS: ${{ vars.SYNC_HOURS_STAGING }}
       AWS_ECR_REGISTRY: ${{ vars.AWS_ECR_REGISTRY }}
     steps:
       - name: Print Set Environment variables
