@@ -11,6 +11,7 @@ import { Sources, ResourceI } from "./utils/constants.js";
 import MediumScraper from './scrapers/Medium.js';
 import SubstackScraper from './scrapers/Substack.js';
 import readingTime from "reading-time";
+import { cleanHTMLContent } from "./utils/preprocessing.js";
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -53,7 +54,7 @@ const summarizeSubstackPost = async (resource: ResourceI, summarizer: Summarizer
 
 const summarizeRSSPost = async (resource: ResourceI, summarizer: Summarizer) => {
   if (resource.content) {
-    resource.summary = await summarizer.summarize(resource.content);
+    resource.summary = await summarizer.summarize(cleanHTMLContent(resource.content));
     resource.readLength = readingTime(resource.content).text
     resource.isSummaryNew = true;
     resource.lastSummaryUpdate = new Date();
