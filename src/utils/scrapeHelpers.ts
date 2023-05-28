@@ -1,4 +1,5 @@
 import { Page } from 'puppeteer-core';
+import moment from 'moment';
 
 export const parseMediumUrl = (url: string) => {
   // If URL matches https://josepholabisi.medium.com convert to https://medium.com/@josepholabisi
@@ -110,3 +111,16 @@ export const inifinteScrollToBottom = (currentPage: Page) => {
     }
   });
 };
+
+export const createDateFromString = (dateString: string): Date => {
+  if (dateString.includes('ago')) {
+    // Format: '3 days ago', '21 hours ago'
+    return moment().subtract(parseInt(dateString), dateString.includes('days') ? 'days' : 'hours').toDate();
+  } else if (dateString.includes(',')) {
+    // Format: 'Mar 7', 'Jan 11, 2022'
+    return moment(dateString, 'MMM D, YYYY').toDate();
+  } else {
+    // Format: '20 MAY 2023'
+    return moment(dateString, 'D MMM YYYY').toDate();
+  }
+}

@@ -30,7 +30,7 @@ const summarizeMediumPost = async (resource: ResourceI, summarizer: Summarizer) 
   if (mediumPost) {
     resource.summary = await summarizer.summarize(mediumPost);
     resource.readLength = readingTime(mediumPost).text
-    resource.isSummaryNew = true;
+    resource.isUpdate = true;
     resource.lastSummaryUpdate = new Date();
   } else {
     throw new Error("Could not get medium post");
@@ -45,7 +45,7 @@ const summarizeSubstackPost = async (resource: ResourceI, summarizer: Summarizer
   if (substackPost) {
     resource.summary = await summarizer.summarize(substackPost);
     resource.readLength = readingTime(substackPost).text
-    resource.isSummaryNew = true;
+    resource.isUpdate = true;
     resource.lastSummaryUpdate = new Date();
   } else {
     throw new Error("Could not get substack post");
@@ -56,11 +56,70 @@ const summarizeRSSPost = async (resource: ResourceI, summarizer: Summarizer) => 
   if (resource.content) {
     resource.summary = await summarizer.summarize(cleanHTMLContent(resource.content));
     resource.readLength = readingTime(resource.content).text
-    resource.isSummaryNew = true;
+    resource.isUpdate = true;
     resource.lastSummaryUpdate = new Date();
   }
 }
 
+const getMediumAuthorsNameAndArticleDate = async (resource: ResourceI) => {
+  const mediumScraper = new MediumScraper();
+  const data = await mediumScraper.getAuthorsNameAndPostDate(resource.url);
+
+  if (data && data.authorsName) {
+    resource.authorsName = data.authorsName;
+    resource.isUpdate = true;
+  } else {
+    console.warn("Could not get medium authors name");
+  }
+
+  if (data && data.articleDate) {
+    resource.datePublished = data.articleDate;
+    resource.isUpdate = true;
+  } else {
+    console.warn("Could not get medium articles published date");
+  }
+}
+
+const getSubstackAuthorsNameAndArticleDate = async (resource: ResourceI) => {
+  const substackScraper = new SubstackScraper();
+  const data = await substackScraper.getAuthorsNameAndPostDate(resource.url);
+
+  if (data && data.authorsName) {
+    resource.authorsName = data.authorsName;
+    resource.isUpdate = true;
+  } else {
+    console.warn("Could not get substack authors name");
+  }
+
+  if (data && data.articleDate) {
+    resource.datePublished = data.articleDate;
+    resource.isUpdate = true;
+  } else {
+    console.warn("Could not get substack articles published date");
+  }
+}
+
+const processAuthorsNamesAndArticleDates = async (resources: ResourceI[]) => {
+  try {
+    for (const resource of resources) {
+      if (!resource.authorsName || !resource.datePublished) {
+        switch (resource.source) {
+          case Sources.MEDIUM:
+            await getMediumAuthorsNameAndArticleDate(resource);
+            break;
+          case Sources.SUBSTACK:
+            await getSubstackAuthorsNameAndArticleDate(resource);
+            break;
+          default:
+            // do nothing
+            break;
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Could not process authors names and dates", err);
+  }
+}
 
 const summarizeResources = async (resources: ResourceI[]) => {
   const summarizer = new Summarizer();
@@ -112,6 +171,13 @@ const handleSendFeed = async (message: Array<string>) => {
     console.log("Summary disabled for user")
   }
 
+  // If authors name is not defined in resources, we want to scrape for the authors name and article date
+  try {
+    await processAuthorsNamesAndArticleDates([...resources, ...latestResources]);
+  } catch (err) {
+    console.error("Couldn't proccess authors names and dates: ", err);
+  };
+
   try {
     console.log("Sending email to user: " + user.email);
     const message = generateEmailTemplate(resources, latestResources, user.isSummaryEnabled);
@@ -161,36 +227,42 @@ const handleSendFeed = async (message: Array<string>) => {
   }
 
   try {
-    const resourcesWithNewSummaries = [...(resources.map((resource: { id: string, summary: string; isSummaryNew: boolean }) => {
-      if (resource.summary && resource.isSummaryNew) {
-        return {
-          id: resource.id,
-          summary: resource.summary
+    const resourcesWithNewSummaries = [...resources, ...latestResources].map((resource: { id: string, summary: string; readLength: string; authorsName: string; datePublished: Date; isUpdate: boolean; }) => {
+      const resourceUpdate: { id: string, summary?: string; readLength?: string; authorsName?: string; datePublished?: Date } = { id: resource.id };
+      if (resource.isUpdate) {
+        if (resource.summary) {
+          resourceUpdate['summary'] = resource.summary;
         }
-      }
-    })), ...(latestResources.map((resource: { id: string, summary: string; isSummaryNew: boolean; readLength: string }) => {
-      if (resource.summary && resource.isSummaryNew) {
-        return {
-          id: resource.id,
-          summary: resource.summary,
-          readLength: resource.readLength
+
+        if (resource.readLength) {
+          resourceUpdate['readLength'] = resource.readLength;
         }
+
+        if (resource.authorsName) {
+          resourceUpdate['authorsName'] = resource.authorsName;
+        }
+
+        if (resource.datePublished) {
+          resourceUpdate['datePublished'] = resource.datePublished;
+        }
+
+        return resourceUpdate;
       }
-    }))]
+    });
 
-    const filteredResourcesWithNewSummaries = resourcesWithNewSummaries.filter(resource => resource !== undefined);
+    const filteredResourcesWithUpdates = resourcesWithNewSummaries.filter(resource => resource !== undefined);
 
 
-    if (filteredResourcesWithNewSummaries.length > 0) {
-      console.log("Saving summaries of resources");
+    if (filteredResourcesWithUpdates.length > 0) {
+      console.log("Updating resources");
 
-      const response = await fetch(BASE_URL + "/resource/update-resource-summary-and-read-length", {
+      const response = await fetch(BASE_URL + "/resource/update-resources", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          resources: filteredResourcesWithNewSummaries
+          resources: filteredResourcesWithUpdates
         }),
       });
 
@@ -203,10 +275,10 @@ const handleSendFeed = async (message: Array<string>) => {
         else throw new Error(data?.message);
       }
 
-      console.log("Succesfully saved resource summaries", data.message);
+      console.log("Succesfully updated resources", data.message);
     }
   } catch (err) {
-    console.error("Could not save summaries, something went wrong: ", err)
+    console.error("Could not update resources, something went wrong: ", err)
   }
 }
 
