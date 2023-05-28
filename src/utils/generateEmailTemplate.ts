@@ -1,10 +1,16 @@
 import { ResourceI } from "./constants.js";
+import moment from 'moment';
 const generatePost = (post: ResourceI, isSummaryEnabled: boolean) => `
 <table style="font-family:trebuchet ms,geneva;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
   <tbody>
     <tr>
       <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:0px 10px 10px;font-family:trebuchet ms,geneva;" align="left">
-        <h4 class="v-text-align v-line-height" style="margin: 0px; line-height: 110%; text-align: left; word-wrap: break-word; font-weight: normal; font-family: 'Open Sans',sans-serif; font-size: 16px;"><strong>${post.title} </strong> ${post.readLength ? "<small>(" + post.readLength + ")</small>" : ""}</h4>
+        <h4 class="v-text-align v-line-height" style="margin: 0px; line-height: 110%; text-align: left; word-wrap: break-word; font-weight: normal; font-family: 'Open Sans',sans-serif; font-size: 16px;"><strong>${post.title}</strong></h4>
+      </td>
+    </tr>
+    <tr>
+      <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:0px 10px 10px;font-family:trebuchet ms,geneva;" align="left">
+        <p class="v-text-align v-line-height" style="margin: 0px; line-height: 110%; text-align: left; word-wrap: break-word; font-weight: normal; font-family: 'Open Sans',sans-serif; font-size: 16px; color: #747474;">${post.authorsName ? "<small>" + post.authorsName + " | </small>" : ""}${post.datePublished ? "<small>" + moment(post.datePublished).format('D MMM, YYYY') + "</small> | " : ""}${post.readLength ? "<small>" + post.readLength + "</small>" : ""}</p>
       </td>
     </tr>
   </tbody>
