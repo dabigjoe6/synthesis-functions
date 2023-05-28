@@ -18,7 +18,7 @@ export interface ResourceI {
   numberOfLikes?: number;
   numberOfComments?: number;
   latest: boolean;
-  isSummaryNew?: boolean;
+  isUpdate?: boolean;
   readLength?: string;
 }
 

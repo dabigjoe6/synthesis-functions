@@ -1,7 +1,7 @@
 import chromium from 'chrome-aws-lambda';
 import { Browser, ElementHandle, Page } from 'puppeteer-core';
 
-import { inifinteScrollToBottom } from "../utils/scrapeHelpers.js";
+import { createDateFromString, inifinteScrollToBottom } from "../utils/scrapeHelpers.js";
 import { viewport, ResourceI } from '../utils/constants.js';
 import { cleanHTMLContent } from "../utils/preprocessing.js";
 
@@ -70,7 +70,7 @@ export default class Medium {
   }
 
   // Checks if its a valid medium account
-  async isPageValid() {
+  async isAuthorsPageValid() {
     const divElements = await this.page.$$("div");
     const anchorElements = await this.page.$$("a");
     let is404 = null;
@@ -100,6 +100,61 @@ export default class Medium {
     return !is404 && isMediumPage;
   }
 
+  async isArticlePageValid() {
+    // checks if article page is valid
+    const isValid = await this.page.evaluate(() => {
+      const article = document.querySelector("article");
+      return article && article.innerHTML;
+    });
+
+    return isValid;
+  }
+
+  async getAuthorsNameAndPostDate(postUrl: string): Promise<{ authorsName: string, articleDate: Date | null } | undefined> {
+    try {
+      await this.initPuppeteer();
+
+      console.log("Visiting ", postUrl);
+      await this.page.goto(postUrl, { waitUntil: "networkidle2" });
+
+      await this.page.waitForSelector('article');
+
+      let authorsName = '';
+      let articleDate = null;
+
+      if (await this.isArticlePageValid()) {
+        console.log("Loaded", postUrl);
+
+        // Extract the inner text of the anchor element
+        const anchorElements = await this.page.$$('article a');
+        const spanElements = await this.page.$$('article section span');
+
+        for (const [index, anchorElement] of anchorElements.entries()) {
+          const innerText = await this.page.evaluate(element => element.innerText, anchorElement);
+          if (innerText === 'Follow') {
+            authorsName = await this.page.evaluate(element => element.innerText, anchorElements[index - 1]);
+            break;
+          }
+        }
+
+        for (const spanElement of spanElements) {
+          const innerText = await this.page.evaluate(element => element.innerText, spanElement);
+          if (innerText.includes('min read')) {
+            const text = innerText.split('\n')
+            articleDate = createDateFromString(text[text.length - 1].trim());
+            break;
+          }
+        }
+      }
+
+      return { authorsName, articleDate }
+    } catch (err) {
+      console.error("Could not get authors name or post date: ", err);
+    } finally {
+      this.killPuppeteer();
+    }
+  }
+
   async getAllPosts(authorsUrl: string, shouldScrollToBottom: boolean = true): Promise<Partial<ResourceI>[] | undefined> {
     try {
       await this.initPuppeteer();
@@ -109,7 +164,7 @@ export default class Medium {
 
       let postsMetadata: Partial<ResourceI>[];
 
-      if (await this.isPageValid()) {
+      if (await this.isAuthorsPageValid()) {
         console.log("Loaded", authorsUrl);
 
         if (shouldScrollToBottom) {
@@ -137,23 +192,17 @@ export default class Medium {
     }
   }
 
-  async getPost(url: string) {
+  async getPost(postUrl: string) {
     try {
       // init puppeteer
       await this.initPuppeteer();
 
-      console.log("Visiting ", url);
+      console.log("Visiting ", postUrl);
 
-      await this.page.goto(url, { waitUntil: "networkidle2" });
+      await this.page.goto(postUrl, { waitUntil: "networkidle2" });
 
-      // check if page is valid
-      const isValid = await this.page.evaluate(() => {
-        const article = document.querySelector("article");
-        return article && article.innerHTML;
-      });
-
-      if (isValid) {
-        console.log("Loaded", url);
+      if (await this.isArticlePageValid()) {
+        console.log("Loaded", postUrl);
 
         const postContent = await this.page.$("article");
 
@@ -177,12 +226,12 @@ export default class Medium {
       } else {
         throw new Error(
           "Could not fetch post from url: " +
-          url +
+          postUrl +
           " as its not a valid medium page"
         );
       }
     } catch (err) {
-      console.log(`Couldn't get post - medium ${url}`, err);
+      console.log(`Couldn't get post - medium ${postUrl}`, err);
     } finally {
       this.killPuppeteer();
     }

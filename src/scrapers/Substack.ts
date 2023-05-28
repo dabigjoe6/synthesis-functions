@@ -2,7 +2,7 @@ import { Browser, Page, ElementHandle, JSHandle } from "puppeteer-core";
 import chromium from "chrome-aws-lambda";
 
 import { cleanHTMLContent } from "../utils/preprocessing.js";
-import { inifinteScrollToBottom } from "../utils/scrapeHelpers.js";
+import { createDateFromString, inifinteScrollToBottom } from "../utils/scrapeHelpers.js";
 import { viewport, ResourceI } from "../utils/constants.js";
 
 export default class Substack {
@@ -115,8 +115,8 @@ export default class Substack {
     return result;
   }
 
-  // Checks if its a valid medium account
-  async isPageValid() {
+  // Checks if its a valid substack account
+  async isAuthorsPageValid() {
     const divElements = await this.page.$$("div");
     const anchorElements = await this.page.$$("a");
     let is404 = null;
@@ -146,6 +146,48 @@ export default class Substack {
     return !is404 && isSubstackPage;
   }
 
+  async getAuthorsNameAndPostDate(postUrl: string): Promise<{ authorsName: string, articleDate: Date | null } | undefined> {
+    try {
+      await this.initPuppeteer();
+
+      console.log("Visiting ", postUrl);
+      await this.page.goto(postUrl, { waitUntil: "networkidle2" });
+
+      await this.page.waitForSelector('.post-header');
+
+      const divElements = await this.page.$$('.post-header div');
+      const navBarTitleLink = await this.page.$('.navbar-title-link');
+
+      let authorsName = '';
+      let articleDate = null;
+
+      const nameStr = await this.page.evaluate(element => element.innerText, divElements[1])
+
+      const datePattern = /^(0[1-9]|[1-2][0-9]|3[0-1])\s(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\s\d{4}$/
+
+      for (const divElement of divElements) {
+        const innerText = await this.page.evaluate(element => element.innerText, divElement);
+        if (datePattern.test(innerText)) {
+          articleDate = createDateFromString(innerText);
+          break;
+        }
+      };
+
+      if (!datePattern.test(nameStr.split('\n')[0])) {
+        authorsName = nameStr.split('\n')[0]
+      } else {
+        authorsName = await this.page.evaluate(element => element.innerText, navBarTitleLink);
+      }
+
+      return { authorsName, articleDate }
+    } catch (err) {
+      console.error("Could not get substacks authors name or post date: ", err);
+    } finally {
+      this.killPuppeteer();
+    }
+  }
+
+
   async getAllPosts(authorsUrl: string, shouldScrollToBottom: boolean = true): Promise<Partial<ResourceI>[] | undefined> {
     try {
       await this.initPuppeteer();
@@ -153,7 +195,7 @@ export default class Substack {
       console.log("Visiting", authorsUrl);
       await this.page.goto(authorsUrl, { waitUntil: "networkidle2" });
 
-      if (await this.isPageValid()) {
+      if (await this.isAuthorsPageValid()) {
         console.log("Loaded", authorsUrl);
 
         const welcomeBtn = (

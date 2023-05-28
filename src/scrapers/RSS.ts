@@ -31,6 +31,11 @@ export default class RSS {
       // Get published date
       const datePublished: Date = new Date(post?.pubDate || "");
 
+      // Get authors name
+      const pattern = /^(?:https?:\/\/)?([^/]+).*$/;
+      const match = (post?.link || "").match(pattern);
+      const authorsName: string = (match && match[1] || "");
+
       if (url && title) {
         result.push({
           url,
@@ -39,6 +44,7 @@ export default class RSS {
           description,
           datePublished,
           content,
+          authorsName,
           latest: index === 0,
         });
       }
@@ -68,7 +74,6 @@ export default class RSS {
           " as its not a valid RSS feed"
         );
       }
-
 
       const postsMetadata = await this.getPostsMetadata(feed.items);
       return postsMetadata;
