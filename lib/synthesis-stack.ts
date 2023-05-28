@@ -16,7 +16,9 @@ export class SynthesisStack extends cdk.Stack {
     });
 
     new lambda.DockerImageFunction(this, process.env.FUNCTION_NAME + "_lambda", {
-      code: lambda.DockerImageCode.fromEcr(cdk.aws_ecr.Repository.fromRepositoryArn(this, 'synthesis_repo', `arn:aws:ecr:eu-west-2:240699656698:repository/${process.env.ECR_REPOSITORY}:${process.env.IMAGE_TAG}`)), // Specify the path to your Dockerfile
+      code: lambda.DockerImageCode.fromEcr(cdk.aws_ecr.Repository.fromRepositoryArn(this, 'synthesis_repo', `arn:aws:ecr:eu-west-2:240699656698:repository/${process.env.ECR_REPOSITORY}`), {
+        tagOrDigest: process.env.IMAGE_TAG
+      }), // Specify the path to your Dockerfile
       memorySize: 2024,
       ephemeralStorageSize: cdk.Size.mebibytes(2024),
       timeout: cdk.Duration.minutes(5),
