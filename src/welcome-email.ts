@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 dotenv.config({ path: path.resolve(__filename, "../../.env") });
 
 const handleWelcomeEmail = async (message: Array<string>) => {
-  const email = JSON.parse(message[1]);
+  const email = message[1];
 
   try {
     console.log("Sending welcome email to user: " + email);
