@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import handleSubscription from "./subscription.js";
 import handleSendFeed from "./send-feed.js";
 import handleSyncFeed from "./sync-feed.js";
+import handleWelcomeEmail from "./welcome-email.js";
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -24,6 +25,8 @@ export const handler: Handler = async (event: SQSEvent) => {
     await handleSendFeed(message);
   } else if (message[0] === 'syncfeed') {
     await handleSyncFeed(message);
+  } else if (message[0] === 'welcomeemail') {
+    await handleWelcomeEmail(message);
   }
 
   return {
