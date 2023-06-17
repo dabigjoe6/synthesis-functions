@@ -165,7 +165,7 @@ const welcomeEmailTemplate = () => {
                                   <tr>
                                     <td class="v-text-align" style="padding-right: 0px;padding-left: 0px;" align="center">
                                       <a href="http://synthesisapp.com" target="_blank">
-                                        <img align="center" border="0" src="https://res.cloudinary.com/dflm5nz9p/image/upload/r_30/v1686783702/SYNTHESIS-removebg-preview_copy-removebg-preview_n9xqgt.jpg" alt="" title="" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 27%;max-width: 129.6px;"
+                                        <img align="center" border="0" src="https://res.cloudinary.com/dflm5nz9p/image/upload/v1686783702/SYNTHESIS-removebg-preview_copy-removebg-preview_n9xqgt.jpg" alt="" title="" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 27%;max-width: 129.6px;"
                                           width="129.6" />
                                       </a>
                                     </td>
