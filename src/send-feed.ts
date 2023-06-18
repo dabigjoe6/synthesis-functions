@@ -20,8 +20,8 @@ const BASE_URL = process.env.BASE_URL;
 
 const summarizePost = async (resource: ResourceI, summarizer: Summarizer) => {
   if (resource.content) {
-    resource.summary = await summarizer.summarize(cleanHTMLContent(resource.content));
     resource.readLength = readingTime(resource.content).text
+    resource.summary = await summarizer.summarize(cleanHTMLContent(resource.content));
     resource.isUpdate = true;
     resource.lastSummaryUpdate = new Date();
   }
