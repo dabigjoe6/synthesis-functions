@@ -55,10 +55,6 @@ export default class RSS {
     return result;
   }
 
-  async isPageValid() {
-    return true;
-  }
-
   async getAllPosts(authorsUrl: string): Promise<Partial<ResourceI>[] | undefined> {
     try {
       console.log("Visiting", authorsUrl);
