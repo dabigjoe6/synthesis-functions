@@ -120,7 +120,7 @@ const handleSyncFeed = async (message: Array<string>) => {
 
   const scraperInstance = getScraperInstance(source);
 
-  const newPosts = (await scraperInstance.getAllPosts(url, false)) as ResourceI[];
+  const newPosts = (await scraperInstance.getAllPosts(url)) as ResourceI[];
 
   await syncPosts(newPosts, JSON.parse(mostRecentPostsInDb), source, authorId)
 }

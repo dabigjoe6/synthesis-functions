@@ -6,10 +6,8 @@ import fetch from "node-fetch";
 
 import generateEmailTemplate from "./utils/email/generateEmailTemplate.js";
 import Summarizer from "./utils/summarize.js";
-import { Sources, ResourceI } from "./utils/constants.js";
+import { ResourceI } from "./utils/constants.js";
 
-import MediumScraper from './scrapers/Medium.js';
-import SubstackScraper from './scrapers/Substack.js';
 import readingTime from "reading-time";
 import { cleanHTMLContent } from "./utils/preprocessing.js";
 
@@ -20,104 +18,12 @@ dotenv.config({ path: path.resolve(__filename, "../../.env") });
 
 const BASE_URL = process.env.BASE_URL;
 
-
-const summarizeMediumPost = async (resource: ResourceI, summarizer: Summarizer) => {
-
-  const mediumScraper = new MediumScraper();
-  const mediumPost = await mediumScraper.getPost(resource.url);
-
-  // summarize
-  if (mediumPost) {
-    resource.summary = await summarizer.summarize(mediumPost);
-    resource.readLength = readingTime(mediumPost).text
-    resource.isUpdate = true;
-    resource.lastSummaryUpdate = new Date();
-  } else {
-    throw new Error("Could not get medium post");
-  }
-};
-
-const summarizeSubstackPost = async (resource: ResourceI, summarizer: Summarizer) => {
-  const substackScraper = new SubstackScraper();
-  const substackPost = await substackScraper.getPost(resource.url);
-
-  // summarize
-  if (substackPost) {
-    resource.summary = await summarizer.summarize(substackPost);
-    resource.readLength = readingTime(substackPost).text
-    resource.isUpdate = true;
-    resource.lastSummaryUpdate = new Date();
-  } else {
-    throw new Error("Could not get substack post");
-  }
-};
-
-const summarizeRSSPost = async (resource: ResourceI, summarizer: Summarizer) => {
+const summarizePost = async (resource: ResourceI, summarizer: Summarizer) => {
   if (resource.content) {
-    resource.summary = await summarizer.summarize(cleanHTMLContent(resource.content));
     resource.readLength = readingTime(resource.content).text
+    resource.summary = await summarizer.summarize(cleanHTMLContent(resource.content));
     resource.isUpdate = true;
     resource.lastSummaryUpdate = new Date();
-  }
-}
-
-const getMediumAuthorsNameAndArticleDate = async (resource: ResourceI) => {
-  const mediumScraper = new MediumScraper();
-  const data = await mediumScraper.getAuthorsNameAndPostDate(resource.url);
-
-  if (data && data.authorsName) {
-    resource.authorsName = data.authorsName;
-    resource.isUpdate = true;
-  } else {
-    console.warn("Could not get medium authors name");
-  }
-
-  if (data && data.articleDate) {
-    resource.datePublished = data.articleDate;
-    resource.isUpdate = true;
-  } else {
-    console.warn("Could not get medium articles published date");
-  }
-}
-
-const getSubstackAuthorsNameAndArticleDate = async (resource: ResourceI) => {
-  const substackScraper = new SubstackScraper();
-  const data = await substackScraper.getAuthorsNameAndPostDate(resource.url);
-
-  if (data && data.authorsName) {
-    resource.authorsName = data.authorsName;
-    resource.isUpdate = true;
-  } else {
-    console.warn("Could not get substack authors name");
-  }
-
-  if (data && data.articleDate) {
-    resource.datePublished = data.articleDate;
-    resource.isUpdate = true;
-  } else {
-    console.warn("Could not get substack articles published date");
-  }
-}
-
-const processAuthorsNamesAndArticleDates = async (resources: ResourceI[]) => {
-  try {
-    for (const resource of resources) {
-      if (!resource.authorsName || !resource.datePublished) {
-        switch (resource.source) {
-          case Sources.MEDIUM:
-            await getMediumAuthorsNameAndArticleDate(resource);
-            break;
-          case Sources.SUBSTACK:
-            await getSubstackAuthorsNameAndArticleDate(resource);
-            break;
-          default:
-            // do nothing
-            break;
-        }
-      }
-    }
-  } catch (err) {
-    console.error("Could not process authors names and dates", err);
   }
 }
 
@@ -127,20 +33,7 @@ const summarizeResources = async (resources: ResourceI[]) => {
   try {
     for (const resource of resources) {
       if (!resource.summary) {
-        switch (resource.source) {
-          case Sources.MEDIUM:
-            await summarizeMediumPost(resource, summarizer);
-            break;
-          case Sources.SUBSTACK:
-            await summarizeSubstackPost(resource, summarizer);
-            break;
-          case Sources.RSS:
-            await summarizeRSSPost(resource, summarizer);
-            break;
-          default:
-            // do nothing
-            break;
-        }
+        summarizePost(resource, summarizer);
       }
     }
   } catch (err) {
@@ -170,13 +63,6 @@ const handleSendFeed = async (message: Array<string>) => {
   } else {
     console.log("Summary disabled for user")
   }
-
-  // If authors name is not defined in resources, we want to scrape for the authors name and article date
-  try {
-    await processAuthorsNamesAndArticleDates([...resources, ...latestResources]);
-  } catch (err) {
-    console.error("Couldn't proccess authors names and dates: ", err);
-  };
 
   try {
     console.log("Sending email to user: " + user.email);
@@ -228,7 +114,7 @@ const handleSendFeed = async (message: Array<string>) => {
 
   try {
     const resourcesWithNewSummaries = [...resources, ...latestResources].map((resource: { id: string, summary: string; readLength: string; authorsName: string; datePublished: Date; isUpdate: boolean; }) => {
-      const resourceUpdate: { id: string, summary?: string; readLength?: string; authorsName?: string; datePublished?: Date } = { id: resource.id };
+      const resourceUpdate: { id: string, summary?: string; readLength?: string; } = { id: resource.id };
       if (resource.isUpdate) {
         if (resource.summary) {
           resourceUpdate['summary'] = resource.summary;
@@ -236,14 +122,6 @@ const handleSendFeed = async (message: Array<string>) => {
 
         if (resource.readLength) {
           resourceUpdate['readLength'] = resource.readLength;
-        }
-
-        if (resource.authorsName) {
-          resourceUpdate['authorsName'] = resource.authorsName;
-        }
-
-        if (resource.datePublished) {
-          resourceUpdate['datePublished'] = resource.datePublished;
         }
 
         return resourceUpdate;
