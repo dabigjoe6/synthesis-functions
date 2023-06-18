@@ -1,147 +1,98 @@
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import Sendgrid from "@sendgrid/mail";
 import fetch from "node-fetch";
-
-import generateEmailTemplate from "./utils/email/generateEmailTemplate.js";
-import Summarizer from "./utils/summarize.js";
-import { ResourceI } from "./utils/constants.js";
-
+import Sendgrid from "@sendgrid/mail";
 import readingTime from "reading-time";
+
+import { ResourceI } from "./utils/constants.js";
+import Summarizer from "./utils/summarize.js";
 import { cleanHTMLContent } from "./utils/preprocessing.js";
+import generateEmailTemplate from "./utils/email/generateEmailTemplate.js";
 
 
 const __filename = fileURLToPath(import.meta.url);
 dotenv.config({ path: path.resolve(__filename, "../../.env") });
 
+class SendFeed {
 
-const BASE_URL = process.env.BASE_URL;
+  user: any;
+  resources: ResourceI[];
+  latestResources: ResourceI[];
+  timeToSend: number;
 
-const summarizePost = async (resource: ResourceI, summarizer: Summarizer) => {
-  if (resource.content) {
-    resource.readLength = readingTime(resource.content).text
-    resource.summary = await summarizer.summarize(cleanHTMLContent(resource.content));
-    resource.isUpdate = true;
-    resource.lastSummaryUpdate = new Date();
+  BASE_URL = process.env.BASE_URL;
+
+
+
+  constructor(message: Array<string>) {
+    this.user = JSON.parse(message[1]);
+    this.resources = JSON.parse(message[2]);
+    this.latestResources = JSON.parse(message[3]);
+    this.timeToSend = Number(message[4]);
   }
-}
 
-const summarizeResources = async (resources: ResourceI[]) => {
-  const summarizer = new Summarizer();
-
-  try {
-    for (const resource of resources) {
-      if (!resource.summary) {
-        summarizePost(resource, summarizer);
-      }
-    }
-  } catch (err) {
-    // Handle errors with summarizing, allowing it to fail silently 
-    // so users can still get the digests without summarization
-    console.error("Something went wrong with summarizing", err);
+  async summarizePost(content: string): Promise<string> {
+    const summarizer = new Summarizer();
+    return (await summarizer.summarize(cleanHTMLContent(content))) || "";
   }
-}
 
-const handleSendFeed = async (message: Array<string>) => {
-  const user = JSON.parse(message[1]);
-  const resources = JSON.parse(message[2]);
-  const latestResources = JSON.parse(message[3]);
-  const timeToSend = Number(message[4]);
 
-  if (user.isSummaryEnabled) {
-    console.log("Summary enabled for user")
+  async summarizeResources(resources: ResourceI[]) {
     try {
-      await summarizeResources(resources);
-      await summarizeResources(latestResources);
+      const newResources: ResourceI[] = [];
+      for (const resource of resources) {
+        resource.readLength = readingTime(resource.content || "").text
+        if (!resource.summary && resource.content) {
+          resource.summary = await this.summarizePost(resource.content);
+          resource.isUpdate = true;
+        }
+        newResources.push(resource)
+      }
+
+      return newResources;
     } catch (err) {
-      console.error(
-        "Couldn't summarize resources for user: " + user.email
-      );
+      // Handle errors with summarizing, allowing it to fail silently 
+      // so users can still get the digests without summarization
+      console.error("Something went wrong with summarizing", err);
+    } finally {
+      return resources;
+    }
+  }
+
+  async sendEmail() {
+    try {
+      console.log("Sending email to user: " + this.user.email);
+      const message = generateEmailTemplate(this.resources, this.latestResources, this.user.isSummaryEnabled);
+      Sendgrid.setApiKey(process.env.SENDGRID_API_KEY || "");
+      await Sendgrid.send({
+        to: this.user.email,
+        from: (process.env.FROM || ""),
+        subject: "Your personalized source for informative and inspiring content",
+        text: "Your daily dose of knowledge, tailored for you: Stay informed effortlessly with your personal digest.",
+        html: message,
+        sendAt: this.timeToSend
+      });
+      console.log("Email sent to user: " + this.user.email);
+    } catch (err) {
+      console.error("Couldn't send email to user: " + this.user.email);
       throw err;
     }
-  } else {
-    console.log("Summary disabled for user")
   }
 
-  try {
-    console.log("Sending email to user: " + user.email);
-    const message = generateEmailTemplate(resources, latestResources, user.isSummaryEnabled);
-    Sendgrid.setApiKey(process.env.SENDGRID_API_KEY || "");
-    await Sendgrid.send({
-      to: user.email,
-      from: (process.env.FROM || ""),
-      subject: "Your personalized source for informative and inspiring content",
-      text: "Your daily dose of knowledge, tailored for you: Stay informed effortlessly with your personal digest.",
-      html: message,
-      sendAt: timeToSend
-    });
-    console.log("Email sent to user: " + user.email);
-  } catch (err) {
-    console.error("Couldn't send email to user: " + user.email);
-    throw err;
-  }
+  async markResourcesAsSeen() {
+    try {
+      console.log("Marking resources as seen for user: " + this.user.email);
 
+      const seenResources = this.resources.map(resource => resource.id);
+      const seenLatestResources = this.latestResources.map(resource => resource.id);
 
-  try {
-    console.log("Marking resources as seen for user: " + user.email);
-
-    const seenResources = resources.map((resource: { id: string }) => resource.id);
-    const seenLatestResources = latestResources.map((resource: { id: string }) => resource.id);
-
-
-    const response = await fetch(BASE_URL + "/user/mark-seen-resources", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ userId: user.id, seenResources: [...seenResources, ...seenLatestResources] }),
-    });
-
-    const data: { message?: string } = (await response.json()) || { message: '' };
-
-    if (!response.ok) {
-      if (response.status === 404) throw new Error("Not found: " + data?.message || "");
-      else if (response.status === 401)
-        throw new Error("Unauthorized: " + data?.message);
-      else throw new Error(data?.message);
-    }
-
-    console.log("Succesfully marked resources as seen!", data.message);
-  } catch (err) {
-    console.warn("Could not mark resource as seen", err);
-  }
-
-  try {
-    const resourcesWithNewSummaries = [...resources, ...latestResources].map((resource: { id: string, summary: string; readLength: string; authorsName: string; datePublished: Date; isUpdate: boolean; }) => {
-      const resourceUpdate: { id: string, summary?: string; readLength?: string; } = { id: resource.id };
-      if (resource.isUpdate) {
-        if (resource.summary) {
-          resourceUpdate['summary'] = resource.summary;
-        }
-
-        if (resource.readLength) {
-          resourceUpdate['readLength'] = resource.readLength;
-        }
-
-        return resourceUpdate;
-      }
-    });
-
-    const filteredResourcesWithUpdates = resourcesWithNewSummaries.filter(resource => resource !== undefined);
-
-
-    if (filteredResourcesWithUpdates.length > 0) {
-      console.log("Updating resources");
-
-      const response = await fetch(BASE_URL + "/resource/update-resources", {
+      const response = await fetch(this.BASE_URL + "/user/mark-seen-resources", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          resources: filteredResourcesWithUpdates
-        }),
+        body: JSON.stringify({ userId: this.user.id, seenResources: [...seenResources, ...seenLatestResources] }),
       });
 
       const data: { message?: string } = (await response.json()) || { message: '' };
@@ -153,11 +104,74 @@ const handleSendFeed = async (message: Array<string>) => {
         else throw new Error(data?.message);
       }
 
-      console.log("Succesfully updated resources", data.message);
+      console.log("Succesfully marked resources as seen!", data.message);
+    } catch (err) {
+      console.warn("Could not mark resource as seen", err);
     }
-  } catch (err) {
-    console.error("Could not update resources, something went wrong: ", err)
   }
-}
 
-export default handleSendFeed;
+  async updateResourcesWithNewSummaries() {
+    try {
+      const resourcesWithNewSummaries = [...this.resources, ...this.latestResources].map(resource => {
+        const resourceUpdate: { id: string, summary?: string; readLength?: string; } = { id: resource.id };
+        if (resource.isUpdate) {
+          if (resource.summary) {
+            resourceUpdate['summary'] = resource.summary;
+          }
+
+          if (resource.readLength) {
+            resourceUpdate['readLength'] = resource.readLength;
+          }
+
+          return resourceUpdate;
+        }
+      });
+
+      const filteredResourcesWithUpdates = resourcesWithNewSummaries.filter(resource => resource !== undefined);
+
+
+      if (filteredResourcesWithUpdates.length > 0) {
+        console.log("Updating resources");
+
+        const response = await fetch(this.BASE_URL + "/resource/update-resources", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            resources: filteredResourcesWithUpdates
+          }),
+        });
+
+        const data: { message?: string } = (await response.json()) || { message: '' };
+
+        if (!response.ok) {
+          if (response.status === 404) throw new Error("Not found: " + data?.message || "");
+          else if (response.status === 401)
+            throw new Error("Unauthorized: " + data?.message);
+          else throw new Error(data?.message);
+        }
+
+        console.log("Succesfully updated resources", data.message);
+      }
+    } catch (err) {
+      console.error("Could not update resources, something went wrong: ", err)
+    }
+  }
+
+  async init() {
+    if (this.user.isSummaryEnabled) {
+      console.log("Summary enabled for user")
+      this.resources = (await this.summarizeResources(this.resources));
+      this.latestResources = (await this.summarizeResources(this.latestResources));
+    } else {
+      console.log("Summary disabled for user")
+    }
+
+    await this.sendEmail();
+    await this.markResourcesAsSeen();
+    await this.updateResourcesWithNewSummaries();
+  }
+};
+
+export default SendFeed;

@@ -4,9 +4,10 @@ import { SQSEvent, Handler } from 'aws-lambda';
 import { fileURLToPath } from "url";
 
 import handleSubscription from "./subscription.js";
-import handleSendFeed from "./send-feed.js";
 import handleSyncFeed from "./sync-feed.js";
 import handleWelcomeEmail from "./welcome-email.js";
+
+import SendFeed from "./send-feed.js";
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -22,7 +23,8 @@ export const handler: Handler = async (event: SQSEvent) => {
   if (message[0] === 'subscription') {
     await handleSubscription(message);
   } else if (message[0] === 'sendfeed') {
-    await handleSendFeed(message);
+    const sendFeed = new SendFeed(message);
+    await sendFeed.init();
   } else if (message[0] === 'syncfeed') {
     await handleSyncFeed(message);
   } else if (message[0] === 'welcomeemail') {

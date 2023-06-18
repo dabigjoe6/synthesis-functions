@@ -5,6 +5,7 @@ export enum Sources {
 };
 
 export interface ResourceI {
+  id: string;
   url: string;
   title?: string;
   source?: Sources;
