@@ -4,7 +4,7 @@ import { fileURLToPath } from "url";
 import Sendgrid from "@sendgrid/mail";
 import fetch from "node-fetch";
 
-import generateEmailTemplate from "./utils/generateEmailTemplate.js";
+import generateEmailTemplate from "./utils/email/generateEmailTemplate.js";
 import Summarizer from "./utils/summarize.js";
 import { Sources, ResourceI } from "./utils/constants.js";
 

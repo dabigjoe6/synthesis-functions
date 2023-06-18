@@ -1,4 +1,4 @@
-import { ResourceI } from "./constants.js";
+import { ResourceI } from "../constants.js";
 import moment from 'moment';
 const generatePost = (post: ResourceI, isSummaryEnabled: boolean) => `
 <table style="font-family:trebuchet ms,geneva;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
@@ -234,8 +234,8 @@ const generateEmailTemplate = (posts: ResourceI[], latestPosts: ResourceI[], isS
                                   <table width="100%" cellpadding="0" cellspacing="0" border="0">
                                     <tr>
                                       <td class="v-text-align" style="padding-right: 0px;padding-left: 0px;" align="center">
-                                        <a href="http://synthesis-staging.netlify.app" target="_blank">
-                                          <img align="center" border="0" src="https://res.cloudinary.com/dflm5nz9p/image/upload/v1675927350/SYNTHESIS-removebg-preview_a6s4ev.png" alt="" title="" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 27%;max-width: 129.6px;"
+                                        <a href="https://synthesisapp.com" target="_blank">
+                                          <img align="center" border="0" src="https://res.cloudinary.com/dflm5nz9p/image/upload/v1686783702/SYNTHESIS-removebg-preview_copy-removebg-preview_n9xqgt.jpg" alt="" title="" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 27%;max-width: 129.6px;"
                                             width="129.6" />
                                         </a>
                                       </td>
@@ -354,7 +354,7 @@ const generateEmailTemplate = (posts: ResourceI[], latestPosts: ResourceI[], isS
                               <tr>
                                 <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:trebuchet ms,geneva;" align="left">
     
-                                  <h1 class="v-text-align v-line-height" style="margin: 0px; line-height: 140%; text-align: center; word-wrap: break-word; font-weight: normal; font-size: 9px;"><a rel="noopener" href="https://synthesis-staging.netlify.app" target="_blank">Too many emails? Change email frequency</a></h1>
+                                  <h1 class="v-text-align v-line-height" style="margin: 0px; line-height: 140%; text-align: center; word-wrap: break-word; font-weight: normal; font-size: 9px;"><a rel="noopener" href="https://synthesisapp.com" target="_blank">Too many emails? Change email frequency</a></h1>
     
                                 </td>
                               </tr>
