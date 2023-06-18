@@ -21,17 +21,22 @@ export class Summarizer {
   }
 
   async summarize(text: string) {
-    const response = await this.api.createCompletion({
-      model: "text-davinci-003",
-      prompt: `${text}\n\nTl;dr`,
-      temperature: 0.7,
-      max_tokens: 2569,
-      top_p: 1.0,
-      frequency_penalty: 0.0,
-      presence_penalty: 1,
-    });
-
-    return response?.data?.choices[0]?.text?.trim() || "";
+    try {
+      const MAX_CHARACTERS = 5000;
+      const response = await this.api.createCompletion({
+        model: "text-davinci-003",
+        prompt: `${text.length > MAX_CHARACTERS ? text.substring(0, MAX_CHARACTERS) : text}\n\nTl;dr`,
+        temperature: 0.7,
+        max_tokens: 2569,
+        top_p: 1.0,
+        frequency_penalty: 0.0,
+        presence_penalty: 1,
+      });
+  
+      return response?.data?.choices[0]?.text?.trim() || "";
+    } catch (err) {
+      console.error("Error summarizing: ", err)
+    }
   }
 
   async summarizeDebounced(text: string) {
