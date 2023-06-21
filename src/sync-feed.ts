@@ -63,6 +63,7 @@ const syncPosts = async (newPosts: ResourceI[], mostRecentPostsInDb: Array<strin
       ...post,
       source: service,
       author: authorId,
+      latest: true
     }));
 
     console.log("Saving posts to DB");
@@ -91,6 +92,7 @@ const syncPosts = async (newPosts: ResourceI[], mostRecentPostsInDb: Array<strin
     ...post,
     source: service,
     author: authorId,
+    latest: true
   }));
 
   console.log("Saving posts to DB");

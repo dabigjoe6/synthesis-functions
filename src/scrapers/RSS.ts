@@ -45,7 +45,7 @@ export default class RSS {
           datePublished,
           content,
           authorsName,
-          latest: index === 0,
+          latest: false,
         });
       }
     }
