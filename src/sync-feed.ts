@@ -42,7 +42,7 @@ const syncAuthorsResources = async (posts: Array<ResourceI>, authorId: string) =
 }
 
 
-const syncPosts = async (newPosts: ResourceI[], mostRecentPostsInDb: ResourceI[], service: Sources, authorId: string) => {
+const syncPosts = async (newPosts: ResourceI[], mostRecentPostsInDb: Array<string>, service: Sources, authorId: string) => {
   if (!newPosts) {
     console.error(
       "newPosts is undefined but required - syncResourcesConsumer"
@@ -74,11 +74,11 @@ const syncPosts = async (newPosts: ResourceI[], mostRecentPostsInDb: ResourceI[]
   // Check for new posts thats does not exist in DB
   const newPostsNotInDb: ResourceI[] = [];
   const mostRecentPostsMap: {
-    [key: string]: ResourceI
+    [key: string]: string
   } = {};
 
   mostRecentPostsInDb.forEach((mostRecentPost) => {
-    mostRecentPostsMap[mostRecentPost.url] = mostRecentPost;
+    mostRecentPostsMap[mostRecentPost] = mostRecentPost;
   });
 
   newPosts.forEach((newPost) => {
