@@ -39,7 +39,7 @@ export default class Substack {
           datePublished,
           content,
           authorsName,
-          latest: index === 0,
+          latest: false,
         });
       }
     }

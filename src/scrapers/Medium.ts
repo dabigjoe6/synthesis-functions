@@ -43,7 +43,7 @@ export default class Medium {
           datePublished,
           content,
           authorsName,
-          latest: index === 0,
+          latest: false,
         });
       }
     }
