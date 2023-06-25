@@ -42,9 +42,12 @@ class SendFeed {
     try {
       const newResources: ResourceI[] = [];
       for (const resource of resources) {
-        resource.readLength = readingTime(resource.content || "").text
-        if (!resource.summary && resource.content) {
-          resource.summary = await this.summarizePost(resource.content);
+        resource.readLength = readingTime(resource.content || resource.description || "").text
+        if (!resource.summary && (resource.content || resource.description)) {
+          resource.summary = await this.summarizePost(resource.content ?
+            resource.content :
+            resource.description ?
+              resource.description : "");
           resource.isUpdate = true;
         }
         newResources.push(resource)
