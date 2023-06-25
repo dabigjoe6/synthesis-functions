@@ -26,8 +26,8 @@ const generatePost = (post: ResourceI, isSummaryEnabled: boolean) => `
     ? post?.summary[0] === ":"
       ? "Summary" + post.summary
       : "Summary: " + post.summary
-    : post.description
-    : post.description}</p>
+    : (post.content || post.description)
+    : (post.content || post.description)}</p>
         </div>
       </td>
     </tr>
