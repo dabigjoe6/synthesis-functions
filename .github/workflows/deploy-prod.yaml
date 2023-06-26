@@ -13,7 +13,7 @@ jobs:
       FROM: ${{ vars.FROM_PROD }}
       NO_OF_POSTS_SENT_TO_USERS: ${{ vars.NO_OF_POSTS_SENT_TO_USERS_PROD }}
       OPENAI_API_KEY: ${{ vars.OPENAI_API_KEY }}
-      SENDGRID_API_KEY: ${{ vars. SENDGRID_API_KEY }}
+      SENDGRID_API_KEY: ${{ vars.SENDGRID_API_KEY_PROD }}
       SYNC_HOURS: ${{ vars.SYNC_HOURS_PROD }}
       AWS_ECR_REGISTRY: ${{ vars.AWS_ECR_REGISTRY }}
     steps:
