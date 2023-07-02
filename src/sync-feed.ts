@@ -42,7 +42,7 @@ const syncAuthorsResources = async (posts: Array<ResourceI>, authorId: string) =
 }
 
 
-const syncPosts = async (newPosts: ResourceI[], mostRecentPostsInDb: Array<string>, service: Sources, authorId: string) => {
+const syncPosts = async (newPosts: ResourceI[], service: Sources, authorId: string) => {
   if (!newPosts) {
     console.error(
       "newPosts is undefined but required - syncResourcesConsumer"
@@ -55,40 +55,7 @@ const syncPosts = async (newPosts: ResourceI[], mostRecentPostsInDb: Array<strin
     return;
   }
 
-  if (
-    !mostRecentPostsInDb ||
-    (isArray(mostRecentPostsInDb) && !mostRecentPostsInDb.length)
-  ) {
-    let posts = newPosts.map((post) => ({
-      ...post,
-      source: service,
-      author: authorId,
-      latest: true
-    }));
-
-    console.log("Saving posts to DB");
-    //Update Resource collection with new posts
-    await syncAuthorsResources(posts, authorId);
-    return;
-  }
-
-  // Check for new posts thats does not exist in DB
-  const newPostsNotInDb: ResourceI[] = [];
-  const mostRecentPostsMap: {
-    [key: string]: string
-  } = {};
-
-  mostRecentPostsInDb.forEach((mostRecentPost) => {
-    mostRecentPostsMap[mostRecentPost] = mostRecentPost;
-  });
-
-  newPosts.forEach((newPost) => {
-    if (newPost.url && !(newPost.url in mostRecentPostsMap)) {
-      newPostsNotInDb.push(newPost);
-    }
-  });
-
-  let posts = newPostsNotInDb.map((post) => ({
+  let posts = newPosts.map((post) => ({
     ...post,
     source: service,
     author: authorId,
@@ -96,7 +63,9 @@ const syncPosts = async (newPosts: ResourceI[], mostRecentPostsInDb: Array<strin
   }));
 
   console.log("Saving posts to DB");
-  await syncAuthorsResources(posts, authorId)
+  //Update Resource collection with new posts
+  await syncAuthorsResources(posts, authorId);
+  return;
 };
 
 
@@ -117,14 +86,13 @@ const handleSyncFeed = async (message: Array<string>) => {
   const authorId = (message[1] as unknown) as string;
   const url = (message[2] as unknown) as string;
   const source = (message[3] as unknown) as Sources;
-  const mostRecentPostsInDb = (message[4] as unknown) as string
 
 
   const scraperInstance = getScraperInstance(source);
 
   const newPosts = (await scraperInstance.getAllPosts(url)) as ResourceI[];
 
-  await syncPosts(newPosts, JSON.parse(mostRecentPostsInDb), source, authorId)
+  await syncPosts(newPosts, source, authorId)
 }
 
 export default handleSyncFeed;
