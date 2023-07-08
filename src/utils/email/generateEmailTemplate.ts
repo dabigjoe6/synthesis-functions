@@ -50,7 +50,7 @@ const generatePost = (post: ResourceI, isSummaryEnabled: boolean) => `
 </table>`;
 
 const generateEmailTemplate = (posts: ResourceI[], latestPosts: ResourceI[], isSummaryEnabled: boolean) => {
-  if (posts && posts.length > 0) {
+  if ((posts && posts.length > 0) || (latestPosts && latestPosts.length > 0)) {
     let postsHTML = "";
     let latestPostsHTML = "";
 
