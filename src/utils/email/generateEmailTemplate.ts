@@ -10,7 +10,7 @@ const generatePost = (post: ResourceI, isSummaryEnabled: boolean) => `
     </tr>
     <tr>
       <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:0px 10px 10px;font-family:trebuchet ms,geneva;" align="left">
-        <p class="v-text-align v-line-height" style="margin: 0px; line-height: 110%; text-align: left; word-wrap: break-word; font-weight: normal; font-family: 'Open Sans',sans-serif; font-size: 16px; color: #747474;">${post.authorsName ? "<small>" + post.authorsName + "</small>" : ""}${post.datePublished ? "<small> | " + moment(post.datePublished).format('D MMM, YYYY') + "</small>" : ""}${post.readLength ? "<small> | " + post.readLength + "</small>" : ""}</p>
+        <p class="v-text-align v-line-height" style="margin: 0px; line-height: 110%; text-align: left; word-wrap: break-word; font-weight: normal; font-family: 'Open Sans',sans-serif; font-size: 16px; color: #747474;"><small>${post.authorsName ? post.authorsName : ""}${((post.authorsName && post.datePublished) || (post.authorsName && post.readLength)) ? " | " : ""}${post.datePublished ? moment(post.datePublished).format('D MMM, YYYY') : ""}${(post.datePublished && post.readLength) ? " | " : ""}${post.readLength ? post.readLength : ""}</small></p>
       </td>
     </tr>
   </tbody>
@@ -50,7 +50,7 @@ const generatePost = (post: ResourceI, isSummaryEnabled: boolean) => `
 </table>`;
 
 const generateEmailTemplate = (posts: ResourceI[], latestPosts: ResourceI[], isSummaryEnabled: boolean) => {
-  if (posts && posts.length > 0) {
+  if ((posts && posts.length > 0) || (latestPosts && latestPosts.length > 0)) {
     let postsHTML = "";
     let latestPostsHTML = "";
 
