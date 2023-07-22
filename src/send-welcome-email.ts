@@ -8,7 +8,7 @@ import welcomeEmailTemplate from "./utils/email/welcomeEmailTemplate.js";
 const __filename = fileURLToPath(import.meta.url);
 dotenv.config({ path: path.resolve(__filename, "../../.env") });
 
-const handleWelcomeEmail = async (message: Array<string>) => {
+const sendWelcomeEmail = async (message: Array<string>) => {
   const email = message[1];
 
   try {
@@ -29,4 +29,4 @@ const handleWelcomeEmail = async (message: Array<string>) => {
   }
 };
 
-export default handleWelcomeEmail;
+export default sendWelcomeEmail;

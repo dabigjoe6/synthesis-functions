@@ -3,11 +3,11 @@ import path from "path";
 import { SQSEvent, Handler } from 'aws-lambda';
 import { fileURLToPath } from "url";
 
-import handleSubscription from "./subscription.js";
-import handleSyncFeed from "./sync-feed.js";
-import handleWelcomeEmail from "./welcome-email.js";
-
 import SendFeed from "./send-feed.js";
+import SyncFeed from "./sync-feed.js";
+import Subscription from './subscription.js';
+
+import sendWelcomeEmail from "./send-welcome-email.js";
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -21,14 +21,16 @@ export const handler: Handler = async (event: SQSEvent) => {
   console.log("Received message: ", message);
 
   if (message[0] === 'subscription') {
-    await handleSubscription(message);
+    const subscription = new Subscription(message);
+    await subscription.init();
   } else if (message[0] === 'sendfeed') {
     const sendFeed = new SendFeed(message);
     await sendFeed.init();
   } else if (message[0] === 'syncfeed') {
-    await handleSyncFeed(message);
+    const syncFeed = new SyncFeed(message);
+    await syncFeed.init();
   } else if (message[0] === 'welcomeemail') {
-    await handleWelcomeEmail(message);
+    await sendWelcomeEmail(message);
   }
 
   return {
