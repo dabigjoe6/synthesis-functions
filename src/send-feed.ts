@@ -43,7 +43,7 @@ class SendFeed {
       const newResources: ResourceI[] = [];
       for (const resource of resources) {
         resource.readLength = readingTime(resource.content || resource.description || "").text
-        if (!resource.summary && (resource.content || resource.description)) {
+        if ((!resource.summary || resource.summary.length < 100) && (resource.content || resource.description)) {
           resource.summary = await this.summarizePost(resource.content ?
             resource.content :
             resource.description ?
