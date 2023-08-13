@@ -17,7 +17,10 @@ const sendWelcomeEmail = async (message: Array<string>) => {
     Sendgrid.setApiKey(process.env.SENDGRID_API_KEY || "");
     await Sendgrid.send({
       to: email,
-      from: (process.env.FROM || ""),
+      from: {
+        email: (process.env.FROM || ""),
+        name: process.env.FROM_NAME || 'Synthesis',
+      },
       subject: "Welcome to Synthesis",
       text: "Your daily dose of knowledge, tailored for you: Stay informed effortlessly with your personal digest.",
       html: message
