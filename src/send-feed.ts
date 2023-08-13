@@ -70,7 +70,10 @@ class SendFeed {
       Sendgrid.setApiKey(process.env.SENDGRID_API_KEY || "");
       await Sendgrid.send({
         to: this.user.email,
-        from: (process.env.FROM || ""),
+        from: {
+          email: (process.env.FROM || ""),
+          name: process.env.FROM_NAME || 'Synthesis',
+        },
         subject: "Your personalized source for informative and inspiring content",
         text: "Your daily dose of knowledge, tailored for you: Stay informed effortlessly with your personal digest.",
         html: message,
