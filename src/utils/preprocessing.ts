@@ -51,3 +51,16 @@ export const cleanHTMLContent = (str: string) => {
 
   return content;
 };
+
+export const handleContentOrDescription = (content: string, description: string): string => {
+  let result: string
+  if (content && description) {
+    result = content.length < description.length ? content : description;
+  } else if (content) {
+    result =  content;
+  } else {
+    result = description;
+  }
+
+  return result.substring(0, 25);
+}

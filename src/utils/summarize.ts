@@ -35,7 +35,8 @@ export class Summarizer {
   
       return response?.data?.choices[0]?.text?.trim() || "";
     } catch (err) {
-      console.error("Error summarizing: ", err)
+      console.warn("Error summarizing: ", err);
+      return "";
     }
   }
 

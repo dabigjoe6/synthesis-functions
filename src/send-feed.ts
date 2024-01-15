@@ -39,8 +39,9 @@ class SendFeed {
 
 
   async summarizeResources(resources: ResourceI[]) {
+    const newResources: ResourceI[] = [];
+
     try {
-      const newResources: ResourceI[] = [];
       for (const resource of resources) {
         resource.readLength = readingTime(resource.content || resource.description || "").text
         if ((!resource.summary || resource.summary.length < 100) && (resource.content || resource.description)) {
@@ -52,14 +53,16 @@ class SendFeed {
         }
         newResources.push(resource)
       }
-
-      return newResources;
     } catch (err) {
       // Handle errors with summarizing, allowing it to fail silently 
       // so users can still get the digests without summarization
       console.error("Something went wrong with summarizing", err);
     } finally {
-      return resources;
+      // check if newResources is the same length as resources
+      // if it isn't, it means something must have gotten when setting summaries
+      // in new resources, hence return resources
+
+      return newResources.length === resources.length ? newResources : resources;
     }
   }
 
