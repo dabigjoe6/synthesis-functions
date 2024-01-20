@@ -1,4 +1,5 @@
 import { ResourceI } from "../constants.js";
+import { handleContentOrDescription } from "../preprocessing.js";
 import moment from 'moment';
 const generatePost = (post: ResourceI, isSummaryEnabled: boolean) => `
 <table style="font-family:trebuchet ms,geneva;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
@@ -26,8 +27,8 @@ const generatePost = (post: ResourceI, isSummaryEnabled: boolean) => `
     ? post?.summary[0] === ":"
       ? "Summary" + post.summary
       : "Summary: " + post.summary
-    : (post.content || post.description)
-    : (post.content || post.description)}</p>
+    : handleContentOrDescription(post.content || "", post.description || "")
+    : handleContentOrDescription(post.content || "", post.description || "")}</p>
         </div>
       </td>
     </tr>

@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 import path from "path";
-import { Configuration, OpenAIApi } from "openai";
+import OpenAI from "openai";
 
 const __filename = fileURLToPath(import.meta.url);
 dotenv.config({ path: path.resolve(__filename, "../../../.env") });
@@ -10,32 +10,32 @@ const RATE_LIMIT_PER_MINUTE = 20;
 const DEFAULT_DELAY_IN_SECOND = 60 / RATE_LIMIT_PER_MINUTE;
 
 export class Summarizer {
-  api: OpenAIApi;
+  client: OpenAI;
 
   constructor() {
-    const configuration = new Configuration({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
-
-    this.api = new OpenAIApi(configuration);
+    this.client = new OpenAI();
   }
 
   async summarize(text: string) {
     try {
       const MAX_CHARACTERS = 5000;
-      const response = await this.api.createCompletion({
-        model: "text-davinci-003",
-        prompt: `${text.length > MAX_CHARACTERS ? text.substring(0, MAX_CHARACTERS) : text}\n\nTl;dr`,
-        temperature: 0.7,
-        max_tokens: 2569,
-        top_p: 1.0,
-        frequency_penalty: 0.0,
-        presence_penalty: 1,
+      const response = await this.client.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            "role": "system",
+            "content": "Summarize content you are provided with for a second-grade student."
+          },
+          {
+            "role": "user",
+            "content": `${text.length > MAX_CHARACTERS ? text.substring(0, MAX_CHARACTERS) : text}\n\n`,
+          }],
       });
-  
-      return response?.data?.choices[0]?.text?.trim() || "";
+
+      return response?.choices[0]?.message?.content?.trim() || "";
     } catch (err) {
-      console.error("Error summarizing: ", err)
+      console.warn("Error summarizing: ", err);
+      return "";
     }
   }
 
